@@ -170,6 +170,7 @@ const PULSO_CONFIG = {
     "Sussy Sacco la Academia",
     "Team Elite Cascanueces",
     "Ángeles",
+    "Otra academia (completar nombre abajo)",
   ],
 
   // ── IMÁGENES DECORATIVAS ─────────────────────────────────

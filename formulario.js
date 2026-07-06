@@ -1922,7 +1922,7 @@ function generarID(academia, obra){
 
 // ── SUBIR ARCHIVO A DRIVE VIA APPS SCRIPT (chunked) ──
 async function subirArchivoDrive(file, inscId, tipo, obra, modalidad, categoria, academia){
-  const CHUNK = 500 * 1024; // 500KB por chunk
+  const CHUNK = 4 * 1024 * 1024; // 4MB por chunk
   const totalChunks = Math.ceil(file.size / CHUNK);
 
   for(let i=0; i<totalChunks; i++){

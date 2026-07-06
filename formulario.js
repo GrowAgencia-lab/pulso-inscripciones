@@ -1267,6 +1267,24 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderProgress();
   poblarSelects();
   document.getElementById('main-form').addEventListener('submit',enviar);
+  document.getElementById('categoria').addEventListener('change',function(){
+    const cat=this.value;
+    const restringir=['baby','mini'].includes(cat);
+    const selectTipo=document.getElementById('tipo-part');
+    const opcionesRestringidas=['solista','duo','trio','cuarteto'];
+
+    Array.from(selectTipo.options).forEach(opt=>{
+      if(opcionesRestringidas.includes(opt.value)){
+        opt.disabled=restringir;
+      }
+    });
+
+    // Si ya había una opción restringida seleccionada, la limpiamos
+    if(restringir && opcionesRestringidas.includes(selectTipo.value)){
+      selectTipo.value='';
+      selectTipo.dispatchEvent(new Event('change'));
+    }
+  });
   document.getElementById('tipo-part').addEventListener('change',function(){
     const t=this.value;
     const mostrarCant=['grupo','gran_grupo'].includes(t);

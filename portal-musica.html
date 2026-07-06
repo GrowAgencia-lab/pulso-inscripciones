@@ -290,7 +290,7 @@ async function subirMusica() {
   progWrap.style.display = 'block';
 
   const file       = input.files[0];
-  const CHUNK_SIZE = 500 * 1024;
+  const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB por chunk
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
   try {

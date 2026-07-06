@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Portal de Música — PULSO 2026</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#F3F0FF;min-height:100vh;padding:20px}
+  .wrap{max-width:520px;margin:0 auto}
+  .card{background:#fff;border-radius:16px;padding:32px 28px;box-shadow:0 4px 24px rgba(59,7,100,.12);margin-bottom:16px}
+  .header{background:linear-gradient(135deg,#3B0764,#6B21A8);border-radius:12px;padding:24px 28px;text-align:center;margin-bottom:20px}
+  .header img{height:56px;object-fit:contain;margin-bottom:12px}
+  .header h1{color:#fff;font-size:1.3rem;margin-bottom:4px}
+  .header p{color:#EAB308;font-size:.85rem;font-weight:700}
+  label{display:block;font-size:.85rem;font-weight:600;color:#3B0764;margin-bottom:6px}
+  select,input[type=text]{width:100%;padding:10px 14px;border:1.5px solid #DDD6FE;border-radius:8px;font-size:.95rem;outline:none;transition:border .2s;background:#fff}
+  select:focus,input:focus{border-color:#6B21A8}
+  .campo{margin-bottom:18px}
+  .obras-list{display:none;margin-top:8px}
+  .obra-item{border:1.5px solid #DDD6FE;border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .2s}
+  .obra-item:hover{border-color:#6B21A8;background:#F5F0FF}
+  .obra-item.selected{border-color:#6B21A8;background:#EDE9FE}
+  .obra-item.tiene-musica{border-color:#16A34A;background:#F0FDF4}
+  .obra-nombre{font-weight:700;color:#3B0764;font-size:.95rem}
+  .obra-meta{font-size:.78rem;color:#888;margin-top:3px}
+  .obra-badge{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:5px}
+  .badge-ok{background:#DCFCE7;color:#16A34A}
+  .badge-pendiente{background:#FEF9C3;color:#92400E}
+  .upload-section{display:none}
+  .upload-area{border:2px dashed #C4B5FD;border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFAFA}
+  .upload-area:hover,.upload-area.has-file{border-color:#6B21A8;background:#F5F0FF}
+  .up-icon{font-size:2.5rem;margin-bottom:8px}
+  .upload-area p{color:#555;font-size:.88rem}
+  .file-name{font-size:.82rem;color:#6B21A8;font-weight:600;margin-top:6px}
+  input[type=file]{display:none}
+  .btn{width:100%;padding:14px;background:linear-gradient(135deg,#3B0764,#6B21A8);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn-secondary{background:linear-gradient(135deg,#6B21A8,#9333EA)}
+  .spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .progress-wrap{margin-top:12px;display:none}
+  .progress-bar{height:8px;background:#EDE9FE;border-radius:4px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#6B21A8,#9333EA);border-radius:4px;transition:width .3s;width:0%}
+  .progress-txt{font-size:.78rem;color:#6B21A8;text-align:center;margin-top:4px}
+  .info-box{background:#EDE9FE;border-radius:8px;padding:12px 16px;font-size:.82rem;color:#3B0764;margin-bottom:16px;line-height:1.5}
+  .warn-box{background:#FEF9C3;border-radius:8px;padding:12px 16px;font-size:.82rem;color:#92400E;margin-bottom:16px}
+  .error-box{background:#FEE2E2;border:1px solid #FECACA;border-radius:8px;padding:12px 16px;font-size:.85rem;color:#991B1B;margin-top:12px;display:none}
+  .exito{display:none;text-align:center;padding:16px 0}
+  .exito .check{font-size:3rem;margin-bottom:12px}
+  .exito h2{color:#16A34A;margin-bottom:8px}
+  .exito p{color:#555;font-size:.9rem}
+  .btn-volver{background:linear-gradient(135deg,#6B21A8,#9333EA);margin-top:16px}
+  .loading{text-align:center;padding:20px;color:#6B21A8;font-size:.9rem}
+  .search-wrap{position:relative;margin-bottom:18px}
+  .search-wrap input{padding-left:36px}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9CA3AF;font-size:1rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <img src="logo.png" alt="PULSO 2026" onerror="this.style.display='none'"/>
+    <h1>🎵 Portal de Música</h1>
+    <p>PULSO Festival Internacional de Danza 2026</p>
+  </div>
+
+  <!-- PASO 1: Seleccionar academia -->
+  <div class="card" id="paso1">
+    <div class="info-box">Seleccioná tu academia para ver las obras inscriptas y subir la música de cada una.</div>
+    <div class="campo search-wrap">
+      <label>Academia / Institución</label>
+      <span class="search-icon">🔍</span>
+      <input type="text" id="buscar-academia" placeholder="Escribí para buscar..." oninput="filtrarAcademias()"/>
+    </div>
+    <div id="academias-lista" class="loading">Cargando academias...</div>
+  </div>
+
+  <!-- PASO 2: Seleccionar obra -->
+  <div class="card" id="paso2" style="display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <button onclick="volverPaso1()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:#6B21A8">←</button>
+      <div>
+        <div style="font-size:.75rem;color:#888">Academia seleccionada</div>
+        <div id="academia-seleccionada" style="font-weight:700;color:#3B0764;font-size:.95rem"></div>
+      </div>
+    </div>
+    <label style="margin-bottom:10px;display:block">Seleccioná la obra para subir la música:</label>
+    <div id="obras-lista"></div>
+  </div>
+
+  <!-- PASO 3: Subir música -->
+  <div class="card" id="paso3" style="display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <button onclick="volverPaso2()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:#6B21A8">←</button>
+      <div>
+        <div style="font-size:.75rem;color:#888">Obra seleccionada</div>
+        <div id="obra-seleccionada" style="font-weight:700;color:#3B0764;font-size:.95rem"></div>
+        <div id="obra-meta" style="font-size:.75rem;color:#888"></div>
+      </div>
+    </div>
+
+    <div id="ya-tiene-musica" class="warn-box" style="display:none">
+      ⚠️ Esta obra ya tiene una música subida. Si subís una nueva <strong>va a reemplazar la anterior</strong>.
+    </div>
+
+    <div class="campo">
+      <label>Archivo de música (MP3)</label>
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('upload-mp3').click()">
+        <div class="up-icon">🎵</div>
+        <p>Tocá para seleccionar el MP3</p>
+        <div class="file-name" id="file-name-display"></div>
+      </div>
+      <input type="file" id="upload-mp3" accept=".mp3,audio/*" onchange="archivoSeleccionado()"/>
+    </div>
+
+    <button class="btn" id="btn-subir" onclick="subirMusica()">
+      <span id="btn-txt">Subir música</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-txt" id="progress-txt">Preparando...</div>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+
+    <div class="exito" id="exito">
+      <div class="check">✅</div>
+      <h2>¡Música subida!</h2>
+      <p id="exito-msg">El archivo fue guardado correctamente.</p>
+      <button class="btn btn-volver" onclick="subirOtra()">Subir música de otra obra</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLDZFKXMYPaL0UlUjStOso_vyeC8UdDqVuw3T_SyjzHLbRqxjDRQ/exec";
+
+let todasAcademias = [];
+let academiaActual = null;
+let obraActual     = null;
+
+// ── CARGAR ACADEMIAS ──
+async function cargarAcademias() {
+  try {
+    const resp = await fetch(SCRIPT_URL + '?accion=getAcademiasConObras');
+    const data = await resp.json();
+    todasAcademias = data.academias || [];
+    renderAcademias(todasAcademias);
+  } catch(err) {
+    document.getElementById('academias-lista').innerHTML =
+      '<div style="color:#991B1B;font-size:.85rem">Error al cargar academias. Recargá la página.</div>';
+  }
+}
+
+function renderAcademias(lista) {
+  const el = document.getElementById('academias-lista');
+  if (!lista.length) {
+    el.innerHTML = '<div style="color:#888;font-size:.85rem;text-align:center;padding:16px">No se encontraron academias</div>';
+    return;
+  }
+  el.innerHTML = lista.map(a => {
+    const total    = a.obras.length;
+    const conMusica = a.obras.filter(o => o.tieneMusica).length;
+    const pct      = total > 0 ? Math.round(conMusica/total*100) : 0;
+    return `<div class="obra-item" onclick="seleccionarAcademia('${escHtml(a.nombre)}')">
+      <div class="obra-nombre">${escHtml(a.nombre)}</div>
+      <div class="obra-meta">${total} obra${total!==1?'s':''} · ${conMusica} con música subida (${pct}%)</div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarAcademias() {
+  const q = document.getElementById('buscar-academia').value.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const filtradas = todasAcademias.filter(a =>
+    a.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q)
+  );
+  renderAcademias(filtradas);
+}
+
+function seleccionarAcademia(nombre) {
+  academiaActual = todasAcademias.find(a => a.nombre === nombre);
+  if (!academiaActual) return;
+  document.getElementById('academia-seleccionada').textContent = nombre;
+  renderObras(academiaActual.obras);
+  document.getElementById('paso1').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
+}
+
+// ── OBRAS ──
+function renderObras(obras) {
+  const el = document.getElementById('obras-lista');
+  el.innerHTML = obras.map((o,i) => `
+    <div class="obra-item${o.tieneMusica?' tiene-musica':''}" onclick="seleccionarObra(${i})">
+      <div class="obra-nombre">${escHtml(o.obra)}</div>
+      <div class="obra-meta">${escHtml(o.modalidad)}${o.categoria?' · '+escHtml(o.categoria):''}</div>
+      <span class="obra-badge ${o.tieneMusica?'badge-ok':'badge-pendiente'}">
+        ${o.tieneMusica?'✅ Música subida':'⏳ Pendiente'}
+      </span>
+    </div>`).join('');
+}
+
+function seleccionarObra(idx) {
+  obraActual = academiaActual.obras[idx];
+  document.getElementById('obra-seleccionada').textContent = obraActual.obra;
+  document.getElementById('obra-meta').textContent =
+    obraActual.modalidad + (obraActual.categoria ? ' · ' + obraActual.categoria : '');
+  document.getElementById('ya-tiene-musica').style.display = obraActual.tieneMusica ? 'block' : 'none';
+  document.getElementById('upload-area').classList.remove('has-file');
+  document.getElementById('file-name-display').textContent = '';
+  document.getElementById('upload-mp3').value = '';
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('exito').style.display = 'none';
+  document.getElementById('btn-subir').style.display = 'flex';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('paso2').style.display = 'none';
+  document.getElementById('paso3').style.display = 'block';
+}
+
+// ── VOLVER ──
+function volverPaso1() {
+  document.getElementById('paso2').style.display = 'none';
+  document.getElementById('paso1').style.display = 'block';
+}
+function volverPaso2() {
+  document.getElementById('paso3').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
+}
+function subirOtra() {
+  document.getElementById('paso3').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
+  // Refrescar obras con estado actualizado
+  cargarAcademias().then(()=>{
+    const updated = todasAcademias.find(a => a.nombre === academiaActual.nombre);
+    if (updated) { academiaActual = updated; renderObras(updated.obras); }
+  });
+}
+
+// ── ARCHIVO ──
+function archivoSeleccionado() {
+  const input = document.getElementById('upload-mp3');
+  const area  = document.getElementById('upload-area');
+  const nm    = document.getElementById('file-name-display');
+  if (!input.files.length) return;
+  const f  = input.files[0];
+  const mb = (f.size/1024/1024).toFixed(1);
+  if (mb > 20) {
+    alert('El archivo es muy grande (' + mb + ' MB). El máximo es 20 MB.');
+    input.value = ''; return;
+  }
+  area.classList.add('has-file');
+  nm.textContent = '✓ ' + f.name + ' (' + mb + ' MB)';
+}
+
+function fileToBase64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const result = r.result;
+      const comma  = result.indexOf(',');
+      res(comma >= 0 ? result.substring(comma + 1) : result);
+    };
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+// ── SUBIR ──
+async function subirMusica() {
+  const input = document.getElementById('upload-mp3');
+  const errEl = document.getElementById('error-box');
+  errEl.style.display = 'none';
+
+  if (!input.files.length) {
+    errEl.textContent = 'Seleccioná el archivo MP3 antes de continuar.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const btn  = document.getElementById('btn-subir');
+  const txt  = document.getElementById('btn-txt');
+  const spin = document.getElementById('spinner');
+  const progWrap = document.getElementById('progress-wrap');
+  const progFill = document.getElementById('progress-fill');
+  const progTxt  = document.getElementById('progress-txt');
+
+  btn.disabled = true; txt.style.display = 'none'; spin.style.display = 'block';
+  progWrap.style.display = 'block';
+
+  const file       = input.files[0];
+  const CHUNK_SIZE = 500 * 1024;
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+  try {
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end   = Math.min(start + CHUNK_SIZE, file.size);
+      const slice = file.slice(start, end);
+      const b64   = await fileToBase64(slice);
+
+      const pct = Math.round(((i + 1) / totalChunks) * 100);
+      progFill.style.width = pct + '%';
+      progTxt.textContent  = 'Subiendo... ' + pct + '% (' + (i+1) + ' de ' + totalChunks + ' partes)';
+
+      const payload = {
+        accion:      'subirChunk',
+        id:          obraActual.id,
+        tipo:        'musica',
+        chunk:       i,
+        totalChunks,
+        b64,
+        nombre:      file.name,
+        mimeType:    file.type || 'audio/mpeg',
+        obra:        obraActual.obra,
+        modalidad:   obraActual.modalidad,
+        categoria:   obraActual.categoria,
+        academia:    academiaActual.nombre
+      };
+
+      const fd = new FormData();
+      fd.append('data', JSON.stringify(payload));
+      await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+    }
+
+    progFill.style.width = '100%';
+    progTxt.textContent  = '¡Completado!';
+    btn.style.display    = 'none';
+    document.getElementById('exito').style.display = 'block';
+    document.getElementById('exito-msg').textContent =
+      'La música de "' + obraActual.obra + '" fue guardada correctamente en Drive.';
+
+  } catch(err) {
+    errEl.textContent = 'Error al subir: ' + err.message + '. Intentá de nuevo.';
+    errEl.style.display = 'block';
+    btn.disabled = false; txt.style.display = 'block'; spin.style.display = 'none';
+    progWrap.style.display = 'none';
+  }
+}
+
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Iniciar
+cargarAcademias();
+</script>
+</body>
+</html>

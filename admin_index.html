@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin — PULSO 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#6B21A8;--pd:#3B0764;--a:#EAB308;--a2:#A855F7;--bg:#F3F0FF;--card:#fff;--txt:#1C1033;--borde:#DDD6FE}
+body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(--txt);font-size:14px}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--pd),var(--p),var(--a2))}
+.login-box{background:#fff;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box img{height:60px;display:block;margin:0 auto 1.25rem}
+.login-box h2{text-align:center;color:var(--pd);font-size:1.2rem;margin-bottom:.25rem}
+.login-box p{text-align:center;color:#888;font-size:.82rem;margin-bottom:1.5rem}
+.lbl-field{display:block;font-size:.78rem;font-weight:600;color:var(--p);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem;margin-top:.75rem}
+.login-box input{width:100%;padding:.6rem .85rem;border:1.5px solid var(--borde);border-radius:8px;font-size:.95rem;color:var(--txt)}
+.login-box input:focus{outline:none;border-color:var(--p)}
+.btn-login{width:100%;margin-top:1.25rem;padding:.75rem;background:linear-gradient(90deg,var(--p),var(--a2));border:none;border-radius:10px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+.login-error{background:#FFF5F5;border:1px solid #FC8181;border-radius:8px;padding:.6rem;font-size:.82rem;color:#C53030;margin-top:.75rem;display:none;text-align:center}
+
+/* APP */
+.app{display:none;min-height:100vh}
+.topbar{background:linear-gradient(90deg,var(--pd),var(--p));padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar img{height:34px}
+.topbar h1{color:#fff;font-size:.9rem;font-weight:600;margin-left:.6rem}
+.topbar-left{display:flex;align-items:center}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+.user-badge{background:rgba(255,255,255,.15);color:#fff;padding:.3rem .75rem;border-radius:99px;font-size:.78rem}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:.3rem .75rem;border-radius:99px;font-size:.75rem;cursor:pointer}
+
+/* TABS */
+.tabs{background:#fff;border-bottom:2px solid var(--borde);padding:0 1.5rem;display:flex}
+.tab{padding:.7rem 1.1rem;font-size:.83rem;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.active{color:var(--p);border-bottom-color:var(--p)}
+
+/* CONTENT */
+.content{max-width:1200px;margin:0 auto;padding:1.5rem}
+.panel{display:none}.panel.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:#fff;border-radius:12px;border:1px solid var(--borde);padding:1rem;text-align:center}
+.stat-card .num{font-size:2rem;font-weight:700;color:var(--p)}
+.stat-card .lbl{font-size:.72rem;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-top:.2rem}
+
+.sec-title{font-size:.88rem;font-weight:700;color:var(--pd);margin:1.5rem 0 .6rem;border-bottom:2px solid var(--borde);padding-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+
+/* TABLES */
+.tbl-wrap{background:#fff;border-radius:12px;border:1px solid var(--borde);overflow:auto;margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;font-size:.81rem;min-width:500px}
+th{background:var(--pd);color:#fff;padding:.55rem .75rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;white-space:nowrap}
+td{padding:.5rem .75rem;border-bottom:1px solid #F3F0FF;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+
+.badge{display:inline-block;padding:.15rem .45rem;border-radius:99px;font-size:.7rem;font-weight:600;white-space:nowrap}
+.b-cat{background:#EDE9FE;color:var(--p)}
+.b-mod{background:#FEF3C7;color:#92400E}
+.b-tipo{background:#D1FAE5;color:#065F46}
+.b-vivo{background:#FEE2E2;color:#991B1B}
+.b-mp3{background:#DBEAFE;color:#1E40AF}
+
+/* ACADEMIAS */
+.acad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.5rem;margin-bottom:1rem}
+.acad-btn{background:#fff;border:1.5px solid var(--borde);border-radius:10px;padding:.55rem .85rem;cursor:pointer;text-align:left;transition:.15s}
+.acad-btn:hover{border-color:var(--p);background:#F5F0FF}
+.acad-name{font-weight:600;color:var(--pd);font-size:.8rem}
+.acad-num{font-size:.72rem;color:#888;margin-top:.1rem}
+
+/* ORDEN */
+.orden-bar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+.btn-dia{padding:.4rem .8rem;border:1.5px solid var(--borde);border-radius:8px;background:#fff;color:var(--p);font-size:.78rem;font-weight:600;cursor:pointer}
+.btn-dia.active{background:var(--p);color:#fff;border-color:var(--p)}
+.tiempo-chip{background:var(--pd);color:var(--a);padding:.4rem .85rem;border-radius:8px;font-size:.78rem;font-weight:700;margin-left:auto}
+.drag-info{font-size:.72rem;color:#888;background:#FEF9C3;padding:.3rem .6rem;border-radius:6px;border:1px solid #F59E0B;display:none}
+.drag-handle{cursor:grab;color:#bbb;padding:0 4px;user-select:none}
+.drag-handle:active{cursor:grabbing}
+tr.dragging{opacity:.4}
+.musica-link{color:var(--p);text-decoration:none;font-size:.75rem}
+.musica-link:hover{text-decoration:underline}
+
+/* BUTTONS */
+.btn-pdf{background:var(--a);color:var(--pd);border:none;border-radius:8px;padding:.4rem .75rem;font-size:.75rem;font-weight:700;cursor:pointer}
+.btn-sec{background:var(--p);color:#fff;border:none;border-radius:8px;padding:.4rem .75rem;font-size:.75rem;font-weight:600;cursor:pointer}
+.btn-sm{background:#EDE9FE;color:var(--p);border:none;border-radius:6px;padding:.25rem .5rem;font-size:.72rem;cursor:pointer}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:1.5rem}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-hdr h3{color:var(--pd);font-size:.95rem;font-weight:700}
+.btn-x{background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888;line-height:1}
+
+/* LOADING */
+.loading{text-align:center;padding:3rem;color:#aaa}
+.sp{display:inline-block;width:16px;height:16px;border:2px solid #DDD6FE;border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media print{.topbar,.tabs,.orden-bar,.btn-pdf,.btn-sec,.btn-sm,.btn-x,.drag-handle{display:none!important}.panel{display:block!important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <img src="../logo.png" alt="PULSO 2026"/>
+    <h2>Panel Administrativo</h2>
+    <p>PULSO Festival Internacional de Danza 2026</p>
+    <label class="lbl-field">Usuario</label>
+    <input type="text" id="inp-user" placeholder="usuario" autocomplete="username"/>
+    <label class="lbl-field">Contraseña</label>
+    <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password"/>
+    <div class="login-error" id="login-err">Usuario o contraseña incorrectos</div>
+    <button class="btn-login" onclick="doLogin()">Ingresar al sistema</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img src="../logo.png" alt="PULSO"/>
+      <h1>Panel Administrativo — PULSO 2026</h1>
+    </div>
+    <div class="topbar-right">
+      <span class="user-badge" id="user-badge">👤</span>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="goTab('dashboard')">📊 Dashboard</div>
+    <div class="tab" onclick="goTab('orden')">📋 Orden Tentativo</div>
+    <div class="tab" onclick="goTab('pulseras')">🎗 Pulseras &amp; Cert.</div>
+    <div class="tab" onclick="goTab('log')">🕐 Actividad</div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="loading"><span class="sp"></span>Cargando datos...</div>
+    </div>
+
+    <!-- ORDEN -->
+    <div class="panel" id="panel-orden">
+      <div class="orden-bar">
+        <button class="btn-dia active" id="bd-jue" onclick="setDia('jue')">Jue 10 · Ballet</button>
+        <button class="btn-dia" id="bd-vie" onclick="setDia('vie')">Vie 11 · Contemporáneo</button>
+        <button class="btn-dia" id="bd-sab" onclick="setDia('sab')">Sáb 12 · Folklore</button>
+        <button class="btn-dia" id="bd-dom" onclick="setDia('dom')">Dom 13 · Jazz</button>
+        <span class="tiempo-chip" id="tiempo-chip">⏱ —</span>
+        <button class="btn-pdf" onclick="window.print()">⬇ PDF Orden</button>
+        <button class="btn-sec" onclick="toggleEdicion()" id="btn-edicion">🔓 Habilitar edición</button>
+      </div>
+      <div class="drag-info" id="drag-info">✋ Arrastrá las filas para reordenar el orden tentativo</div>
+      <div class="tbl-wrap">
+        <table id="tbl-orden">
+          <tr><th></th><th>#</th><th>Obra</th><th>Academia</th><th>Modalidad</th><th>Categoría</th><th>Tipo</th><th>Participantes</th><th>Duración</th><th>Música</th></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- PULSERAS -->
+    <div class="panel" id="panel-pulseras">
+      <div class="sec-title">🎗 Pulseras y certificados por academia
+        <button class="btn-pdf" style="margin-left:auto" onclick="window.print()">⬇ PDF General</button>
+      </div>
+      <div class="tbl-wrap">
+        <table id="tbl-pulseras">
+          <tr><th>Academia</th><th style="text-align:center">Participantes únicos</th><th style="text-align:center">Pulseras</th><th style="text-align:center">Certificados</th></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="panel" id="panel-log">
+      <div class="sec-title">🕐 Registro de actividad del sistema</div>
+      <div class="tbl-wrap">
+        <table id="tbl-log">
+          <tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL ACADEMIA -->
+<div class="overlay" id="modal-acad">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-title">Academia</h3>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn-pdf" onclick="window.print()">⬇ PDF</button>
+        <button class="btn-x" onclick="cerrarModal()">✕</button>
+      </div>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── USUARIOS ────────────────────────────────────────────
+const USUARIOS = [
+  {u:"rebeca", nombre:"Rebeca Sánchez", h:"26b9123f603a2fdba3fed4d3f84051fce3bf83643ae2987fd0b65a176d9a25c9"},
+  {u:"carmen", nombre:"Carmen Cañete",  h:"8a3d53785688180d078c087c965f891b75e37ac6487713f95a38f95c8d314a47"},
+  {u:"angel",  nombre:"Angel Ovelar",   h:"c584d6f17e23c34832ba0f7afc74b1c6967adb2c15bacc2000a045a522b040dd"},
+];
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPyOAqrd7erAufqriCnds4abcY_TnO9oUM9hibAP5HrOHUBHtIOIjr1c8rvUVcNJG7ew/exec";
+
+const DIAS = {
+  jue:{label:"Jueves 10 de Septiembre",  mods:["Ballet Clásico","Neoclásico"]},
+  vie:{label:"Viernes 11 de Septiembre", mods:["Contemporáneo","Técnica Libre","Acrodance","Libre","Show","Urban"]},
+  sab:{label:"Sábado 12 de Septiembre",  mods:["Danza Paraguaya","Folklore","Española","Baby"]},
+  dom:{label:"Domingo 13 de Septiembre", mods:["Jazz"]},
+};
+const CAT_ORD = ["baby","mini","kids1","kids2","junior","teens","senior","adulto","profesional"];
+const CAT_LBL = {baby:"Baby",mini:"Mini",kids1:"Kids I",kids2:"Kids II",junior:"Junior",teens:"Teens",senior:"Senior",adulto:"Adulto",profesional:"Profesional"};
+
+let ME = null;
+let DATA = [];
+let ORDEN = {};
+let DIA = "jue";
+let EDICION = false;
+let LOG = [];
+let DRAG_IDX = null;
+
+// ─── LOGIN ────────────────────────────────────────────────
+async function sha256(s){
+  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+async function doLogin(){
+  const u=document.getElementById("inp-user").value.trim().toLowerCase();
+  const p=document.getElementById("inp-pass").value;
+  const h=await sha256(p);
+  const found=USUARIOS.find(x=>x.u===u&&x.h===h);
+  if(!found){document.getElementById("login-err").style.display="block";return;}
+  ME=found;
+  document.getElementById("login-wrap").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("user-badge").textContent="👤 "+ME.nombre;
+  log("Inicio de sesión");
+  cargarDatos();
+}
+
+function doLogout(){log("Cierre de sesión");ME=null;location.reload();}
+document.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+
+// ─── TABS ─────────────────────────────────────────────────
+function goTab(t){
+  document.querySelectorAll(".tab").forEach((el,i)=>{
+    el.classList.toggle("active",["dashboard","orden","pulseras","log"][i]===t);
+  });
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById("panel-"+t).classList.add("active");
+  if(t==="orden") renderOrden();
+  if(t==="pulseras") renderPulseras();
+  if(t==="log") renderLog();
+}
+
+// ─── DATOS ────────────────────────────────────────────────
+async function cargarDatos(){
+  try{
+    const r=await fetch(SCRIPT_URL+"?accion=getInscripciones");
+    const json=await r.json();
+    DATA=json.data||[];
+  }catch(e){
+    DATA=getDemoData();
+  }
+  renderDashboard();
+}
+
+function getDemoData(){
+  return [
+    {id:"P1",obra:"Aurora Boreal",academia:"Academia de Danzas GlauDance",modalidad:"Ballet Clásico Repertorio",categoria:"kids1",tipo_part:"solista",participantes:[{nombre:"Martina Cornet Barreto",ci:"7737098",edad:12}],duracion:"02:30",tipo_musica:"mp3"},
+    {id:"P2",obra:"Sombras",academia:"Escuela de Danzas Marisol Valdez",modalidad:"Contemporáneo",categoria:"teens",tipo_part:"duo",participantes:[{nombre:"Alai Sosa",ci:"7632696",edad:11},{nombre:"Jade Medina",ci:"7649749",edad:11}],duracion:"03:15",tipo_musica:"mp3"},
+    {id:"P3",obra:"Fuego Interior",academia:"Academia de Danzas GlauDance",modalidad:"Jazz",categoria:"junior",tipo_part:"grupo",participantes:[{nombre:"Agustina Arrua",ci:"6540300",edad:14},{nombre:"Dulce Acosta",ci:"6933748",edad:14},{nombre:"Gala Gebhardt",ci:"8500250",edad:14}],duracion:"04:00",tipo_musica:"vivo"},
+    {id:"P4",obra:"Primavera",academia:"Estudio Nicole Dijkhuis",modalidad:"Ballet Clásico Libre",categoria:"kids2",tipo_part:"solista",participantes:[{nombre:"Chiara Ferrari",ci:"7539656",edad:12}],duracion:"02:45",tipo_musica:"mp3"},
+    {id:"P5",obra:"Tierra",academia:"Escuela de Danzas Marisol Valdez",modalidad:"Danza Paraguaya",categoria:"teens",tipo_part:"grupo",participantes:[{nombre:"Alai Sosa",ci:"7632696",edad:11},{nombre:"Candela Mereles",ci:"8474902",edad:8}],duracion:"03:30",tipo_musica:"mp3"},
+    {id:"P6",obra:"Cielo",academia:"Estudio Nicole Dijkhuis",modalidad:"Neoclásico",categoria:"junior",tipo_part:"solista",participantes:[{nombre:"Chiara Ferrari",ci:"7539656",edad:12}],duracion:"02:00",tipo_musica:"mp3"},
+  ];
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────
+function renderDashboard(){
+  const totPart=DATA.reduce((s,d)=>s+(d.participantes||[]).length,0);
+  const acads=[...new Set(DATA.map(d=>d.academia||d.inst_nombre).filter(Boolean))];
+  const sol=DATA.filter(d=>d.tipo_part==="solista").length;
+  const grp=DATA.filter(d=>["grupo","gran_grupo"].includes(d.tipo_part)).length;
+  const vivo=DATA.filter(d=>d.tipo_musica==="vivo").length;
+
+  const porCat={}, porMod={};
+  DATA.forEach(d=>{
+    const c=d.categoria||"—";
+    if(!porCat[c]) porCat[c]={i:0,p:0};
+    porCat[c].i++; porCat[c].p+=(d.participantes||[]).length;
+    const m=d.modalidad||"—";
+    if(!porMod[m]) porMod[m]={i:0,p:0};
+    porMod[m].i++; porMod[m].p+=(d.participantes||[]).length;
+  });
+
+  const acadMap={};
+  DATA.forEach(d=>{
+    const a=d.academia||d.inst_nombre||"Sin academia";
+    if(!acadMap[a]) acadMap[a]={i:0,p:0};
+    acadMap[a].i++; acadMap[a].p+=(d.participantes||[]).length;
+  });
+
+  const acadBtns=Object.entries(acadMap).sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([a,v])=>`<button class="acad-btn" onclick="abrirAcademia('${a.replace(/'/g,"\\'")}')"><div class="acad-name">${a}</div><div class="acad-num">${v.i} inscripciones · ${v.p} participantes</div></button>`).join("");
+
+  const catRows=CAT_ORD.filter(c=>porCat[c]).map(c=>`<tr><td><span class="badge b-cat">${CAT_LBL[c]}</span></td><td>${porCat[c].i}</td><td>${porCat[c].p}</td></tr>`).join("");
+  const modRows=Object.entries(porMod).sort((a,b)=>b[1].i-a[1].i).map(([m,v])=>`<tr><td><span class="badge b-mod">${m}</span></td><td>${v.i}</td><td>${v.p}</td></tr>`).join("");
+
+  document.getElementById("panel-dashboard").innerHTML=`
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num">${DATA.length}</div><div class="lbl">Inscripciones</div></div>
+      <div class="stat-card"><div class="num">${totPart}</div><div class="lbl">Participantes</div></div>
+      <div class="stat-card"><div class="num">${acads.length}</div><div class="lbl">Academias</div></div>
+      <div class="stat-card"><div class="num">${sol}</div><div class="lbl">Solistas</div></div>
+      <div class="stat-card"><div class="num">${grp}</div><div class="lbl">Grupos</div></div>
+      <div class="stat-card"><div class="num">${vivo}</div><div class="lbl">Música en vivo</div></div>
+    </div>
+    <div class="sec-title">📊 Por categoría</div>
+    <div class="tbl-wrap"><table><tr><th>Categoría</th><th>Inscripciones</th><th>Participantes</th></tr>${catRows}</table></div>
+    <div class="sec-title">💃 Por modalidad</div>
+    <div class="tbl-wrap"><table><tr><th>Modalidad</th><th>Inscripciones</th><th>Participantes</th></tr>${modRows}</table></div>
+    <div class="sec-title">🏫 Por academia
+      <button class="btn-pdf" style="margin-left:auto" onclick="window.print()">⬇ PDF General</button>
+    </div>
+    <div class="acad-grid">${acadBtns}</div>`;
+}
+
+// ─── MODAL ACADEMIA ───────────────────────────────────────
+let modalAcad=null;
+function abrirAcademia(a){
+  modalAcad=a;
+  const insc=DATA.filter(d=>(d.academia||d.inst_nombre)===a);
+  const totP=insc.reduce((s,d)=>s+(d.participantes||[]).length,0);
+  const rows=insc.map(d=>`
+    <tr><td>${d.obra||"—"}</td>
+    <td><span class="badge b-mod" style="font-size:.68rem">${(d.modalidad||"—").substring(0,20)}</span></td>
+    <td><span class="badge b-cat">${CAT_LBL[d.categoria]||d.categoria||"—"}</span></td>
+    <td>${d.tipo_part||"—"}</td>
+    <td>${(d.participantes||[]).length}</td>
+    <td>${d.duracion||"—"}</td></tr>`).join("");
+  document.getElementById("modal-title").textContent="🏫 "+a;
+  document.getElementById("modal-body").innerHTML=`
+    <p style="font-size:.82rem;color:#888;margin-bottom:.75rem">${insc.length} coreografías · ${totP} participantes</p>
+    <div class="tbl-wrap"><table>
+      <tr><th>Obra</th><th>Modalidad</th><th>Categoría</th><th>Tipo</th><th>Part.</th><th>Duración</th></tr>
+      ${rows}
+    </table></div>`;
+  document.getElementById("modal-acad").classList.add("open");
+  log("Consultó academia: "+a);
+}
+function cerrarModal(){document.getElementById("modal-acad").classList.remove("open");}
+
+// ─── ORDEN TENTATIVO ──────────────────────────────────────
+function setDia(d){
+  DIA=d;
+  document.querySelectorAll(".btn-dia").forEach(b=>b.classList.remove("active"));
+  document.getElementById("bd-"+d).classList.add("active");
+  renderOrden();
+}
+
+function generarOrdenDia(dia){
+  const mods=DIAS[dia].mods;
+  let items=DATA.filter(d=>mods.some(m=>(d.modalidad||"").toLowerCase().includes(m.toLowerCase())));
+  const tipoOrd=["solista","duo","trio","cuarteto","grupo","gran_grupo"];
+  items.sort((a,b)=>{
+    const ci=CAT_ORD.indexOf(a.categoria)-CAT_ORD.indexOf(b.categoria);
+    if(ci!==0) return ci;
+    return tipoOrd.indexOf(a.tipo_part)-tipoOrd.indexOf(b.tipo_part);
+  });
+  // Regla 5 presentaciones entre mismo bailarín
+  const result=[], lastPos={}, pending=[...items];
+  let tries=0;
+  while(pending.length>0&&tries<2000){
+    tries++;
+    let added=false;
+    for(let i=0;i<pending.length;i++){
+      const item=pending[i];
+      const cis=(item.participantes||[]).map(p=>p.ci).filter(Boolean);
+      const ok=cis.every(ci=>lastPos[ci]===undefined||(result.length-lastPos[ci])>=5);
+      if(ok){
+        result.push(item);
+        cis.forEach(ci=>lastPos[ci]=result.length-1);
+        pending.splice(i,1);
+        added=true; break;
+      }
+    }
+    if(!added){
+      const item=pending.shift();
+      result.push(item);
+      (item.participantes||[]).map(p=>p.ci).filter(Boolean).forEach(ci=>lastPos[ci]=result.length-1);
+    }
+  }
+  return result;
+}
+
+function renderOrden(){
+  if(!ORDEN[DIA]) ORDEN[DIA]=generarOrdenDia(DIA);
+  const items=ORDEN[DIA];
+  let totalSeg=0;
+  items.forEach(d=>{
+    const [m,s]=(d.duracion||"0:00").split(":").map(Number);
+    totalSeg+=(m*60+(s||0))+240;
+  });
+  const hh=Math.floor(totalSeg/3600), mm=Math.floor((totalSeg%3600)/60);
+  document.getElementById("tiempo-chip").textContent=`⏱ ${DIAS[DIA].label}: ${hh}h ${mm}min`;
+  document.getElementById("drag-info").style.display=EDICION?"block":"none";
+
+  const tbl=document.getElementById("tbl-orden");
+  tbl.innerHTML=`<tr><th></th><th>#</th><th>Obra</th><th>Academia</th><th>Modalidad</th><th>Categoría</th><th>Tipo</th><th>Participantes</th><th>Duración</th><th>Música</th></tr>`;
+
+  items.forEach((d,i)=>{
+    const tr=document.createElement("tr");
+    tr.setAttribute("data-i",i);
+    if(EDICION){
+      tr.setAttribute("draggable","true");
+      tr.addEventListener("dragstart",()=>DRAG_IDX=i);
+      tr.addEventListener("dragover",e=>e.preventDefault());
+      tr.addEventListener("drop",()=>{
+        if(DRAG_IDX===null||DRAG_IDX===i) return;
+        const arr=ORDEN[DIA];
+        arr.splice(i,0,arr.splice(DRAG_IDX,1)[0]);
+        DRAG_IDX=null;
+        renderOrden();
+        log("Reordenó bloque "+DIA);
+      });
+    }
+    const musica=d.tipo_musica==="vivo"
+      ?'<span class="badge b-vivo">🎼 En vivo</span>'
+      :(d.musica_url?`<a class="musica-link" href="${d.musica_url}" target="_blank">⬇ MP3</a>`:'<span class="badge b-mp3">MP3</span>');
+    tr.innerHTML=`
+      <td>${EDICION?'<span class="drag-handle">⠿</span>':''}</td>
+      <td style="font-weight:700;color:var(--p)">${i+1}</td>
+      <td>${d.obra||"—"}</td>
+      <td style="font-size:.75rem">${(d.academia||d.inst_nombre||"—").substring(0,28)}</td>
+      <td><span class="badge b-mod" style="font-size:.68rem">${(d.modalidad||"—").substring(0,16)}</span></td>
+      <td><span class="badge b-cat">${CAT_LBL[d.categoria]||d.categoria||"—"}</span></td>
+      <td><span class="badge b-tipo">${d.tipo_part||"—"}</span></td>
+      <td style="font-size:.75rem">${(d.participantes||[]).map(p=>p.nombre).join(", ").substring(0,35)}</td>
+      <td>${d.duracion||"—"}</td>
+      <td>${musica}</td>`;
+    tbl.appendChild(tr);
+  });
+}
+
+function toggleEdicion(){
+  EDICION=!EDICION;
+  document.getElementById("btn-edicion").textContent=EDICION?"🔒 Deshabilitar edición":"🔓 Habilitar edición";
+  document.getElementById("btn-edicion").style.background=EDICION?"#DC2626":"var(--p)";
+  log(EDICION?"Habilitó edición de orden":"Deshabilitó edición de orden");
+  renderOrden();
+}
+
+// ─── PULSERAS ─────────────────────────────────────────────
+function renderPulseras(){
+  const map={};
+  DATA.forEach(d=>{
+    const a=d.academia||d.inst_nombre||"Sin academia";
+    if(!map[a]) map[a]=new Set();
+    (d.participantes||[]).forEach(p=>map[a].add(p.ci||p.nombre));
+  });
+  const tbl=document.getElementById("tbl-pulseras");
+  tbl.innerHTML=`<tr><th>Academia</th><th style="text-align:center">Participantes únicos</th><th style="text-align:center">Pulseras</th><th style="text-align:center">Certificados</th></tr>`;
+  let totP=0;
+  Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([a,s])=>{
+    const n=s.size; totP+=n;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${a}</td><td style="text-align:center;font-weight:700;color:var(--p)">${n}</td><td style="text-align:center">${n}</td><td style="text-align:center">${n}</td>`;
+    tbl.appendChild(tr);
+  });
+  const foot=document.createElement("tr");
+  foot.innerHTML=`<td style="font-weight:700">TOTAL</td><td style="text-align:center;font-weight:700;color:var(--pd)">${totP}</td><td style="text-align:center;font-weight:700">${totP}</td><td style="text-align:center;font-weight:700">${totP}</td>`;
+  foot.style.background="#EDE9FE";
+  tbl.appendChild(foot);
+}
+
+// ─── LOG ──────────────────────────────────────────────────
+function log(accion){
+  if(!ME) return;
+  LOG.unshift({f:new Date().toLocaleString("es-PY"),u:ME.nombre,a:accion});
+}
+function renderLog(){
+  const tbl=document.getElementById("tbl-log");
+  tbl.innerHTML=`<tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr>`;
+  LOG.forEach(e=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${e.f}</td><td>${e.u}</td><td>${e.a}</td>`;
+    tbl.appendChild(tr);
+  });
+}
+</script>
+</body>
+</html>

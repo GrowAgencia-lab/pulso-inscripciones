@@ -340,7 +340,7 @@ function goTab(t){
   document.getElementById("panel-"+t).classList.add("active");
   if(t==="orden") renderOrden();
   if(t==="pulseras") renderPulseras();
-  if(t==="log") renderLog();
+  if(t==="log") cargarActividad();
 }
 
 // ─── DATOS ────────────────────────────────────────────────
@@ -569,10 +569,24 @@ function log(accion){
   if(!ME) return;
   LOG.unshift({f:new Date().toLocaleString("es-PY"),u:ME.nombre,a:accion});
 }
-function renderLog(){
+async function cargarActividad(){
   const tbl=document.getElementById("tbl-log");
+  tbl.innerHTML=`<tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr><tr><td colspan="3" style="text-align:center;color:#aaa;padding:1rem">Cargando...</td></tr>`;
+
+  let servidor=[];
+  try{
+    const r=await fetch(SCRIPT_URL+"?accion=getActividad");
+    const json=await r.json();
+    servidor=(json.actividad||[]).map(e=>({
+      f:e.fecha,
+      u:e.tipo,
+      a:(e.estado==="OK"?"✅ ":"❌ ")+e.detalle
+    }));
+  }catch(e){}
+
+  const combinado=[...LOG,...servidor];
   tbl.innerHTML=`<tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr>`;
-  LOG.forEach(e=>{
+  combinado.forEach(e=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${e.f}</td><td>${e.u}</td><td>${e.a}</td>`;
     tbl.appendChild(tr);

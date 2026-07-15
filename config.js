@@ -216,6 +216,5 @@ const PULSO_CONFIG = {
   ],
 
   // ── GOOGLE APPS SCRIPT (NO MODIFICAR) ───────────────────
- // ── GOOGLE APPS SCRIPT (NO MODIFICAR) ───────────────────
-  google_script_url: "https://script.google.com/macros/s/AKfycbwPyOAqrd7.../exec",
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLDZFKXMYPaL0UlUjStOso_vyeC8UdDqVuw3T_SyjzHLbRqxjDRQ/exec";
 }

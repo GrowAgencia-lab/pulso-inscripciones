@@ -310,7 +310,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLD
 const DIAS = {
   jue:{label:"Jueves 10 de Septiembre",  mods:["Ballet Clásico","Neoclásico"]},
   vie:{label:"Viernes 11 de Septiembre", mods:["Contemporáneo","Técnica Libre","Acrodance","Libre","Show","Urban"]},
-  sab:{label:"Sábado 12 de Septiembre",  mods:["Danza Paraguaya","Folklore","Española","Baby"]},
+  sab:{label:"Sábado 12 de Septiembre",  mods:["Danza Paraguaya","Folklore","Española"]},
   dom:{label:"Domingo 13 de Septiembre", mods:["Jazz"]},
 };
 const CAT_ORD = ["baby","mini","kids1","kids2","junior","teens","senior","adulto","profesional"];
@@ -481,7 +481,11 @@ function setDia(d){
 
 function generarOrdenDia(dia){
   const mods=DIAS[dia].mods;
-  let items=DATA.filter(d=>mods.some(m=>(d.modalidad||"").toLowerCase().includes(m.toLowerCase())));
+  let items=DATA.filter(d=>{
+    const esBabyMini = d.categoria==="baby" || d.categoria==="mini";
+    if(esBabyMini) return dia==="vie"; // Segmento Baby/Mini compite el viernes, sin importar la modalidad
+    return mods.some(m=>(d.modalidad||"").toLowerCase().includes(m.toLowerCase()));
+  });
   const tipoOrd=["solista","duo","trio","cuarteto","grupo","gran_grupo"];
   items.sort((a,b)=>{
     const ci=CAT_ORD.indexOf(a.categoria)-CAT_ORD.indexOf(b.categoria);

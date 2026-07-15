@@ -876,7 +876,7 @@ async function cambiarEstado(inscId, nuevoEstado, academia) {
     });
     verDetalleAcademia(academia);
     renderFinTabla(finDataFiltrada);
-    registrarLog('Estado pago cambiado: ' + inscId + ' → ' + estadoTexto);
+    log('Estado pago cambiado: ' + inscId + ' → ' + estadoTexto);
   } catch(err) {
     alert('Error: ' + err.message);
   }

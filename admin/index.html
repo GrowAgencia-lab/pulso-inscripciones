@@ -216,6 +216,21 @@ tr.dragging{opacity:.4}
           <tr><th>Academia</th><th style="text-align:center">Participantes únicos</th><th style="text-align:center">Pulseras</th><th style="text-align:center">Certificados</th></tr>
         </table>
       </div>
+
+      <div class="sec-title">🎓 Profesores únicos (coreógrafos y preparadores)</div>
+      <p style="font-size:.78rem;color:#888;margin-bottom:.5rem">Un profesor que da clases en varias academias recibe una sola pulsera.</p>
+      <div class="tbl-wrap">
+        <table id="tbl-profesores">
+          <tr><th>Profesor/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>
+        </table>
+      </div>
+
+      <div class="sec-title">🎩 Directores únicos</div>
+      <div class="tbl-wrap">
+        <table id="tbl-directores">
+          <tr><th>Director/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>
+        </table>
+      </div>
     </div>
 
     <!-- LOG -->
@@ -575,6 +590,59 @@ function renderPulseras(){
   });
   const foot=document.createElement("tr");
   foot.innerHTML=`<td style="font-weight:700">TOTAL</td><td style="text-align:center;font-weight:700;color:var(--pd)">${totP}</td><td style="text-align:center;font-weight:700">${totP}</td><td style="text-align:center;font-weight:700">${totP}</td>`;
+  foot.style.background="#EDE9FE";
+  tbl.appendChild(foot);
+
+  renderProfesoresUnicos();
+  renderDirectoresUnicos();
+}
+
+function renderProfesoresUnicos(){
+  const mapa={};
+  DATA.forEach(d=>{
+    const academia=d.academia||d.inst_nombre||"Sin academia";
+    [d.coreografo, d.preparador].forEach(nombre=>{
+      const limpio=(nombre||"").toString().trim();
+      if(!limpio) return;
+      const key=limpio.toLowerCase();
+      if(!mapa[key]) mapa[key]={nombre:limpio, academias:new Set()};
+      mapa[key].academias.add(academia);
+    });
+  });
+  const tbl=document.getElementById("tbl-profesores");
+  tbl.innerHTML=`<tr><th>Profesor/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>`;
+  const lista=Object.values(mapa).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  lista.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${p.nombre}</td><td style="font-size:.78rem;color:#888">${[...p.academias].join(", ")}</td><td style="text-align:center;font-weight:700;color:var(--p)">1</td>`;
+    tbl.appendChild(tr);
+  });
+  const foot=document.createElement("tr");
+  foot.innerHTML=`<td style="font-weight:700" colspan="2">TOTAL PROFESORES ÚNICOS</td><td style="text-align:center;font-weight:700;color:var(--pd)">${lista.length}</td>`;
+  foot.style.background="#EDE9FE";
+  tbl.appendChild(foot);
+}
+
+function renderDirectoresUnicos(){
+  const mapa={};
+  DATA.forEach(d=>{
+    const academia=d.academia||d.inst_nombre||"Sin academia";
+    const limpio=(d.director||"").toString().trim();
+    if(!limpio) return;
+    const key=limpio.toLowerCase();
+    if(!mapa[key]) mapa[key]={nombre:limpio, academias:new Set()};
+    mapa[key].academias.add(academia);
+  });
+  const tbl=document.getElementById("tbl-directores");
+  tbl.innerHTML=`<tr><th>Director/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>`;
+  const lista=Object.values(mapa).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  lista.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${p.nombre}</td><td style="font-size:.78rem;color:#888">${[...p.academias].join(", ")}</td><td style="text-align:center;font-weight:700;color:var(--p)">1</td>`;
+    tbl.appendChild(tr);
+  });
+  const foot=document.createElement("tr");
+  foot.innerHTML=`<td style="font-weight:700" colspan="2">TOTAL DIRECTORES ÚNICOS</td><td style="text-align:center;font-weight:700;color:var(--pd)">${lista.length}</td>`;
   foot.style.background="#EDE9FE";
   tbl.appendChild(foot);
 }

@@ -906,20 +906,6 @@ async function subirComprobanteAdmin(input, inscId, obra, academia) {
   await cargarFinanzas();
   verDetalleAcademia(academia);
 }
-
-function fileToBase64(blob) {
-  return new Promise((res,rej) => {
-    const r = new FileReader();
-    r.onload = () => { const c = r.result.indexOf(','); res(c>=0?r.result.substring(c+1):r.result); };
-    r.onerror = rej;
-    r.readAsDataURL(blob);
-  });
-}
-
-function escHtml(str) {
-  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-</script>
 async function subirFacturaAdmin(input, inscId, obra, academia) {
   if (!input.files.length) return;
   const file = input.files[0];
@@ -944,5 +930,18 @@ async function subirFacturaAdmin(input, inscId, obra, academia) {
   await cargarFinanzas();
   verDetalleAcademia(academia);
 }  
+function fileToBase64(blob) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => { const c = r.result.indexOf(','); res(c>=0?r.result.substring(c+1):r.result); };
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
 </body>
 </html>

@@ -313,8 +313,8 @@ const DIAS = {
   sab:{label:"Sábado 12 de Septiembre",  mods:["Danza Paraguaya","Folklore","Española"]},
   dom:{label:"Domingo 13 de Septiembre", mods:["Jazz"]},
 };
-const CAT_ORD = ["baby","mini","kids1","kids2","junior","teens","senior","adulto","profesional"];
-const CAT_LBL = {baby:"Baby",mini:"Mini",kids1:"Kids I",kids2:"Kids II",junior:"Junior",teens:"Teens",senior:"Senior",adulto:"Adulto",profesional:"Profesional"};
+const CAT_ORD = ["baby","mini","kids1","kids2","kids3","junior","teens","senior","adulto","profesional"];
+const CAT_LBL = {baby:"Baby",mini:"Mini",kids1:"Kids I",kids2:"Kids II",kids3:"Kids III",junior:"Junior",teens:"Teens",senior:"Senior",adulto:"Adulto",profesional:"Profesional"};
 
 let ME = null;
 let DATA = [];
@@ -397,14 +397,15 @@ function getDemoData(){
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────
+const TIPO_ORD = ["solista","duo","trio","cuarteto","grupo","gran_grupo"];
+const TIPO_LBL = {solista:"Solista",duo:"Dúo",trio:"Trío",cuarteto:"Cuarteto",grupo:"Grupo (5-10)",gran_grupo:"Gran Grupo (+10)"};
+
 function renderDashboard(){
   const totPart=DATA.reduce((s,d)=>s+(d.participantes||[]).length,0);
   const acads=[...new Set(DATA.map(d=>d.academia||d.inst_nombre).filter(Boolean))];
-  const sol=DATA.filter(d=>d.tipo_part==="solista").length;
-  const grp=DATA.filter(d=>["grupo","gran_grupo"].includes(d.tipo_part)).length;
   const vivo=DATA.filter(d=>d.tipo_musica==="vivo").length;
 
-  const porCat={}, porMod={};
+  const porCat={}, porMod={}, porTipo={};
   DATA.forEach(d=>{
     const c=d.categoria||"—";
     if(!porCat[c]) porCat[c]={i:0,p:0};
@@ -412,6 +413,9 @@ function renderDashboard(){
     const m=d.modalidad||"—";
     if(!porMod[m]) porMod[m]={i:0,p:0};
     porMod[m].i++; porMod[m].p+=(d.participantes||[]).length;
+    const t=d.tipo_part||"—";
+    if(!porTipo[t]) porTipo[t]={i:0,p:0};
+    porTipo[t].i++; porTipo[t].p+=(d.participantes||[]).length;
   });
 
   const acadMap={};
@@ -426,16 +430,20 @@ function renderDashboard(){
 
   const catRows=CAT_ORD.filter(c=>porCat[c]).map(c=>`<tr><td><span class="badge b-cat">${CAT_LBL[c]}</span></td><td>${porCat[c].i}</td><td>${porCat[c].p}</td></tr>`).join("");
   const modRows=Object.entries(porMod).sort((a,b)=>b[1].i-a[1].i).map(([m,v])=>`<tr><td><span class="badge b-mod">${m}</span></td><td>${v.i}</td><td>${v.p}</td></tr>`).join("");
+  const tipoRows=TIPO_ORD.filter(t=>porTipo[t]).map(t=>`<tr><td><span class="badge b-tipo">${TIPO_LBL[t]||t}</span></td><td>${porTipo[t].i}</td><td>${porTipo[t].p}</td></tr>`).join("");
 
   document.getElementById("panel-dashboard").innerHTML=`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+      <button class="btn-sec" onclick="cargarDatos()">🔄 Actualizar</button>
+    </div>
     <div class="stats-grid">
       <div class="stat-card"><div class="num">${DATA.length}</div><div class="lbl">Inscripciones</div></div>
       <div class="stat-card"><div class="num">${totPart}</div><div class="lbl">Participantes</div></div>
       <div class="stat-card"><div class="num">${acads.length}</div><div class="lbl">Academias</div></div>
-      <div class="stat-card"><div class="num">${sol}</div><div class="lbl">Solistas</div></div>
-      <div class="stat-card"><div class="num">${grp}</div><div class="lbl">Grupos</div></div>
       <div class="stat-card"><div class="num">${vivo}</div><div class="lbl">Música en vivo</div></div>
     </div>
+    <div class="sec-title">🩰 Por tipo de participación</div>
+    <div class="tbl-wrap"><table><tr><th>Tipo</th><th>Inscripciones</th><th>Participantes</th></tr>${tipoRows}</table></div>
     <div class="sec-title">📊 Por categoría</div>
     <div class="tbl-wrap"><table><tr><th>Categoría</th><th>Inscripciones</th><th>Participantes</th></tr>${catRows}</table></div>
     <div class="sec-title">💃 Por modalidad</div>

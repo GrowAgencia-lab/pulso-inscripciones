@@ -173,9 +173,9 @@ tr.dragging{opacity:.4}
   </div>
 
   <div class="tabs" id="tabs-main">
-    <div class="tab admin-only active" onclick="goTab('dashboard')">📊 Dashboard</div>
+    <div class="tab active" onclick="goTab('dashboard')">📊 Dashboard</div>
     <div class="tab admin-only" onclick="goTab('orden')">📋 Orden Tentativo</div>
-    <div class="tab admin-only" onclick="goTab('pulseras')">🎗 Pulseras &amp; Cert.</div>
+    <div class="tab" onclick="goTab('pulseras')">🎗 Pulseras &amp; Cert.</div>
     <div class="tab admin-only" onclick="goTab('log')">🕐 Actividad</div>
     <div class="tab" onclick="goTab('finanzas')">💰 Finanzas</div>
   </div>
@@ -354,8 +354,7 @@ async function sha256(s){
   document.getElementById("user-badge").textContent="👤 "+ME.nombre;
   log("Inicio de sesión");
   aplicarRol(ME.rol || "admin");
-  if ((ME.rol || "admin") === "admin") cargarDatos();
-  else cargarFinanzas();
+  cargarDatos();
 }
 
 function doLogout(){log("Cierre de sesión");ME=null;location.reload();}
@@ -363,14 +362,16 @@ document.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
 
 // ─── TABS ─────────────────────────────────────────────────
 function goTab(t){
+  const orden=["dashboard","orden","pulseras","log","finanzas"];
   document.querySelectorAll(".tab").forEach((el,i)=>{
-    el.classList.toggle("active",["dashboard","orden","pulseras","log"][i]===t);
+    el.classList.toggle("active",orden[i]===t);
   });
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
   document.getElementById("panel-"+t).classList.add("active");
   if(t==="orden") renderOrden();
   if(t==="pulseras") renderPulseras();
   if(t==="log") cargarActividad();
+  if(t==="finanzas") cargarFinanzas();
 }
 
 // ─── DATOS ────────────────────────────────────────────────
@@ -817,9 +818,10 @@ function verDetalleAcademia(nombre) {
   ac.obras.forEach(obra => {
     const pagada   = obra.estado === 'Pago confirmado';
     const monto    = parseMonto(obra.costo_total);
-    const compLink = obra.comp_drive_url
+   const compLink = obra.comp_drive_url
       ? `<a class="comp-link" href="${obra.comp_drive_url}" target="_blank">📎 Ver comprobante</a>` : '';
-
+    const facturaLink = obra.factura_drive_url
+      ? `<a class="comp-link" href="${obra.factura_drive_url}" target="_blank">🧾 Ver factura</a>` : '';
     html += `<div class="obra-fin-row">
       <div class="obra-fin-top">
         <div>
@@ -839,6 +841,11 @@ function verDetalleAcademia(nombre) {
         <label class="btn-upload-comp" style="cursor:pointer">
           📎 Subir comprobante
           <input type="file" accept="image/*,.pdf" style="display:none" onchange="subirComprobanteAdmin(this,'${escHtml(obra.id)}','${escHtml(obra.obra)}','${escHtml(nombre)}')"/>
+        </label>
+        ${facturaLink}
+        <label class="btn-upload-comp" style="cursor:pointer;background:#B45309">
+          🧾 Cargar factura
+          <input type="file" accept="image/*,.pdf" style="display:none" onchange="subirFacturaAdmin(this,'${escHtml(obra.id)}','${escHtml(obra.obra)}','${escHtml(nombre)}')"/>
         </label>
       </div>
     </div>`;
@@ -913,5 +920,29 @@ function escHtml(str) {
   return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 </script>
+async function subirFacturaAdmin(input, inscId, obra, academia) {
+  if (!input.files.length) return;
+  const file = input.files[0];
+  const mb = (file.size/1024/1024).toFixed(1);
+  if (mb > 10) { alert('Archivo muy grande (' + mb + ' MB). Máximo 10 MB.'); return; }
+
+  const CHUNK = 500 * 1024;
+  const totalChunks = Math.ceil(file.size / CHUNK);
+  for (let i = 0; i < totalChunks; i++) {
+    const slice = file.slice(i*CHUNK, Math.min((i+1)*CHUNK, file.size));
+    const b64   = await fileToBase64(slice);
+    const fd    = new FormData();
+    fd.append('data', JSON.stringify({
+      accion:'subirChunk', id:inscId, tipo:'factura',
+      chunk:i, totalChunks, b64,
+      nombre:file.name, mimeType:file.type||'application/pdf',
+      obra, academia
+    }));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+  }
+  alert('Factura subida correctamente.');
+  await cargarFinanzas();
+  verDetalleAcademia(academia);
+}  
 </body>
 </html>

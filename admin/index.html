@@ -104,19 +104,20 @@ tr.dragging{opacity:.4}
 
 /* ── FINANZAS ── */
 .fin-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.2rem;flex-wrap:wrap;gap:10px}
-.fin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem}
+.fin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1rem;margin-bottom:1.5rem}
 .fin-stat{background:#fff;border-radius:12px;border:1px solid #EDE9FE;padding:1rem 1.2rem;text-align:center}
-.fin-stat .fs-num{font-size:1.6rem;font-weight:800;color:#3B0764}
+.fin-stat .fs-num{font-size:1.3rem;font-weight:800;color:#3B0764;white-space:nowrap}
 .fin-stat .fs-lbl{font-size:.75rem;color:#888;margin-top:2px}
 .fin-card{background:#fff;border-radius:12px;border:1px solid #EDE9FE;padding:1.2rem 1.4rem;margin-bottom:1.2rem}
 .fin-resumen{background:#EDE9FE;border-radius:8px;padding:8px 16px;font-size:.85rem;color:#3B0764;font-weight:700}
 .btn-fin-refresh{background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.82rem;font-weight:600}
-.fin-academia-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s;border-bottom:1px solid #F3F0FF;gap:8px}
+.fin-academia-row{display:grid;grid-template-columns:1fr 90px 130px 120px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s;border-bottom:1px solid #F3F0FF;gap:8px}
 .fin-academia-row:hover{background:#F5F0FF}
 .fin-academia-row:last-child{border-bottom:none}
-.fin-ac-nombre{font-weight:600;color:#3B0764;font-size:.9rem;flex:1}
-.fin-ac-deuda{font-weight:700;font-size:.88rem;color:#7C3AED}
-.fin-ac-estado{display:flex;gap:6px;align-items:center}
+.fin-ac-nombre{font-weight:600;color:#3B0764;font-size:.9rem;text-align:left}
+.fin-ac-obras{font-size:.78rem;color:#888;text-align:right}
+.fin-ac-deuda{font-weight:700;font-size:.88rem;color:#7C3AED;text-align:right}
+.fin-ac-estado{display:flex;justify-content:flex-end;align-items:center}
 .badge-pagado{background:#DCFCE7;color:#16A34A;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:700}
 .badge-parcial{background:#FEF9C3;color:#92400E;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:700}
 .badge-pendiente-fin{background:#FEE2E2;color:#991B1B;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:700}
@@ -674,11 +675,9 @@ function renderFinTabla(lista) {
 
     html += `<div class="fin-academia-row" onclick="verDetalleAcademia('${escHtml(ac.nombre)}')">
       <div class="fin-ac-nombre">${escHtml(ac.nombre)}</div>
-      <div class="fin-ac-estado">
-        <span style="font-size:.78rem;color:#888">${nPag}/${ac.obras.length} obras</span>
-        ${badge}
-        <span class="fin-ac-deuda">${formatGs(total - pagado)}</span>
-      </div>
+      <div class="fin-ac-obras">${nPag}/${ac.obras.length} obras</div>
+      <div class="fin-ac-estado">${badge}</div>
+      <div class="fin-ac-deuda">${formatGs(total - pagado)}</div>
     </div>`;
   });
 

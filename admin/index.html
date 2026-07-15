@@ -150,7 +150,10 @@ tr.dragging{opacity:.4}
     <label class="lbl-field">Usuario</label>
     <input type="text" id="inp-user" placeholder="usuario" autocomplete="username"/>
     <label class="lbl-field">Contraseña</label>
-    <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password"/>
+    <div style="position:relative">
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding-right:2.2rem"/>
+      <span onclick="togglePass()" style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.1rem;user-select:none" id="toggle-pass-icon">👁️</span>
+    </div>
     <div class="login-error" id="login-err">Usuario o contraseña incorrectos</div>
     <button class="btn-login" onclick="doLogin()">Ingresar al sistema</button>
   </div>
@@ -312,7 +315,19 @@ async function sha256(s){
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
-async function doLogin(){
+  function togglePass(){
+  const inp=document.getElementById("inp-pass");
+  const icon=document.getElementById("toggle-pass-icon");
+  if(inp.type==="password"){
+    inp.type="text";
+    icon.textContent="🙈";
+  }else{
+    inp.type="password";
+    icon.textContent="👁️";
+  }
+}
+
+  async function doLogin(){
   const u=document.getElementById("inp-user").value.trim().toLowerCase();
   const p=document.getElementById("inp-pass").value;
   const h=await sha256(p);

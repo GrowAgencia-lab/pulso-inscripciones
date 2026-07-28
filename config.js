@@ -77,6 +77,7 @@ const PULSO_CONFIG = {
     { valor: "senior",        label: "Senior (18 a 25 años)" },
     { valor: "adulto",        label: "Adulto (26 años en adelante)" },
     { valor: "profesional",   label: "Profesionales" },
+    { valor: "aficionado", label: "Aficionado" },
   ],
 
   // ── MODALIDADES ──────────────────────────────────────────

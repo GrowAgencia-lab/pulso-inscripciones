@@ -41,20 +41,20 @@ const PULSO_CONFIG = {
   },
 
   // ── COSTOS (en Guaraníes) ────────────────────────────────
-  costos: {
+   costos: {
     primer_llamado: {
-      solista:              200000,
-      duo_trio_cuarteto:    150000,
-      grupo:                120000,   // 5-10 participantes
-      gran_grupo:           100000,   // +10 participantes
-      coreografia:          200000,
+      solista:              240000,
+      duo_trio_cuarteto:    180000,
+      grupo:                120000,
+      gran_grupo:           100000,
+      coreografia:          250000,
     },
     segundo_llamado: {
-      solista:              250000,
-      duo_trio_cuarteto:    180000,
+      solista:              270000,
+      duo_trio_cuarteto:    220000,
       grupo:                150000,
-      gran_grupo:           140000,
-      coreografia:          300000,
+      gran_grupo:           130000,
+      coreografia:          350000,
     },
   },
 

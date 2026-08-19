@@ -18,7 +18,7 @@ const PULSO_CONFIG = {
     texto2:      "#6B21A8",   // texto secundario
     borde:       "#DDD6FE",   // bordes suaves
   },
-
+ 
   // ── INFORMACIÓN GENERAL ─────────────────────────────────
   evento: {
     nombre:      "PULSO Festival Internacional de Danza",

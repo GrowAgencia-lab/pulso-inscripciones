@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Aporte 3ro Azul</title>
+  <link rel="icon" type="image/png" href="assets/icon-32.png">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1d3557">
+
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f6f8fb; margin: 0; padding: 0; }
+  .topbar { background: #7f1d3a; color: #fff; padding: 16px 24px; }
+  .topbar h1 { margin: 0; font-size: 18px; }
+  .tabs { display: flex; gap: 4px; padding: 0 24px; background: #fff; border-bottom: 1px solid #eee; }
+  .tab { padding: 12px 18px; font-size: 14px; color: #555; cursor: pointer; border-bottom: 3px solid transparent; }
+  .tab.active { color: #7f1d3a; border-bottom-color: #7f1d3a; font-weight: 600; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  nav.top { text-align: center; font-size: 13px; padding: 10px; background: #fff; }
+  nav.top a { color: #7f1d3a; text-decoration: none; margin: 0 8px; }
+
+  .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { flex: 1; min-width: 160px; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .stat .label { font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  .ingreso { color: #2a9d8f; } .gasto { color: #e63946; } .saldo { color: #1d3557; } .pendiente { color: #e07a00; }
+
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 24px; }
+  th, td { text-align: left; padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #eee; }
+  th { background: #1d3557; color: #fff; font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  .neg { color: #e63946; } .pos { color: #2a9d8f; }
+  h2 { font-size: 16px; color: #333; margin: 0 0 10px; }
+  #loading { text-align: center; color: #777; padding: 40px; }
+</style>
+</head>
+<body>
+  <nav class="top"><a href="index.html">Inicio</a> · <a href="aporte.html">Cargar aporte</a> · <a href="gastos.html">Cargar gasto</a></nav>
+  <div class="topbar"><img src="assets/logo.png" alt="CAS" style="width:36px;vertical-align:middle;margin-right:10px;border-radius:6px;background:#fff;padding:2px;"><h1 style="display:inline;">Control de Ingresos y Gastos — 3ro Azul</h1></div>
+  <div class="tabs">
+    <div class="tab active" data-view="financiero">Control Financiero</div>
+    <div class="tab" data-view="cuotas">Cuotas (pendientes/pagos)</div>
+    <div class="tab" data-view="reporte">Reporte de Gastos</div>
+    <button id="btnInforme" style="margin-left:auto;margin-top:8px;margin-right:12px;background:#1d3557;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;height:38px;">📥 Descargar informe</button>
+  </div>
+
+  <div class="wrap">
+    <div id="loading">Cargando datos...</div>
+
+    <div class="view active" id="view-financiero">
+      <div class="cards">
+        <div class="stat"><div class="label">Total recaudado</div><div class="value ingreso" id="totalIngresos">-</div><div style="font-size:10px;color:#999;margin-top:2px;" id="detalleTotalIngresos"></div></div>
+        <div class="stat"><div class="label">Total gastado</div><div class="value gasto" id="totalGastos">-</div></div>
+        <div class="stat"><div class="label">Saldo disponible</div><div class="value saldo" id="saldo">-</div></div>
+        <div class="stat"><div class="label">Gastos no contemplados</div><div class="value pendiente" id="totalNoContemplados">-</div></div>
+      </div>
+
+      <h2>Comités — Presupuesto vs Realizado</h2>
+      <table>
+        <thead><tr><th>Tipo de Comité</th><th>Monto Presupuestado</th><th>Monto Realizado</th><th>Saldo</th></tr></thead>
+        <tbody id="tablaComites"></tbody>
+        <tfoot id="totalesComites"></tfoot>
+      </table>
+
+      <div id="proyeccion" style="border-radius:10px;padding:16px 18px;margin-bottom:16px;"></div>
+
+      <h2>¿Qué comités se podrían cubrir con la plata proyectada?</h2>
+      <p style="font-size:12px;color:#777;margin-top:-6px;">Ordenados de menor a mayor gasto pendiente, para ver hasta dónde alcanzaría. Vos podés priorizar distinto según qué actividades sean más importantes.</p>
+      <table>
+        <thead><tr><th>Comité</th><th>Falta gastar</th><th>Acumulado</th><th>¿Cubierto?</th></tr></thead>
+        <tbody id="tablaCobertura"></tbody>
+      </table>
+    </div>
+
+    <div class="view" id="view-cuotas">
+      <div class="cards">
+        <div class="stat"><div class="label">Pendiente al vencimiento</div><div class="value pendiente" id="pendienteTotal">-</div></div>
+        <div class="stat"><div class="label">Cuotas pendientes a la fecha</div><div class="value pendiente" id="cantidadPendiente">-</div></div>
+        <div class="stat"><div class="label">Falta cobrar hasta noviembre</div><div class="value pendiente" id="pendienteFinAnio">-</div></div>
+      </div>
+      <p style="font-size:12px;color:#777;margin:-14px 0 20px;">"Pendiente al vencimiento" es solo lo que ya venció. "Falta cobrar hasta noviembre" incluye también los meses que todavía no vencieron (Agosto a Noviembre para el que está al día).</p>
+
+      <h2>Alumnos con pendiente de pago</h2>
+      <table>
+        <thead><tr><th>Alumno/a</th><th>Meses pendientes</th><th>Monto</th></tr></thead>
+        <tbody id="tablaPendientes"></tbody>
+      </table>
+
+      <h2>Aportes realizados a la fecha (cuotas)</h2>
+      <table>
+        <thead><tr><th>Alumno/a</th><th>Cantidad de aportes</th><th>Total aportado</th></tr></thead>
+        <tbody id="tablaAportes"></tbody>
+      </table>
+
+      <h2>Aportes Varios</h2>
+      <table>
+        <thead><tr><th>Alumno/a</th><th>Descripción</th><th>Monto</th></tr></thead>
+        <tbody id="tablaAportesVarios"></tbody>
+      </table>
+    </div>
+
+    <div class="view" id="view-reporte">
+      <h2>Gastos desglosados (detalle completo)</h2>
+      <table>
+        <thead><tr><th>Fecha</th><th>Comité</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Contemplado</th><th>Comprobante</th></tr></thead>
+        <tbody id="tablaReporte"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxoxnziXecOQ0UUSZRW9TvpeQA_opdMPif_BvxZdSc6-Ugem0mr4dbKNje7_J1LkD_z/exec';
+    let datosDashboard = null;
+
+    function formatoGs(n) {
+      return '₲ ' + Number(n).toLocaleString('es-PY');
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('view-' + tab.dataset.view).classList.add('active');
+      });
+    });
+
+    fetch(API_URL + '?action=dashboard')
+      .then(r => r.json())
+      .then(d => {
+        datosDashboard = d;
+        document.getElementById('loading').style.display = 'none';
+
+        document.getElementById('totalIngresos').textContent = formatoGs(d.totalIngresos);
+        const totalAportesVarios = (d.aportesVarios || []).reduce((s, a) => s + a.monto, 0);
+        document.getElementById('detalleTotalIngresos').textContent =
+          totalAportesVarios > 0 ? `incluye ${formatoGs(totalAportesVarios)} de Aportes Varios` : '';
+        document.getElementById('totalGastos').textContent = formatoGs(d.totalGastos);
+        document.getElementById('saldo').textContent = formatoGs(d.saldo);
+        document.getElementById('totalNoContemplados').textContent = formatoGs(d.totalNoContemplados);
+
+        const tablaComites = document.getElementById('tablaComites');
+        let sumaPresupuestado = 0, sumaRealizado = 0;
+        d.comites.forEach(c => {
+          sumaPresupuestado += c.presupuestado;
+          sumaRealizado += c.realizado;
+          const fila = document.createElement('tr');
+          const saldoClase = c.saldo < 0 ? 'neg' : 'pos';
+          fila.innerHTML = `<td>${c.nombre}</td><td>${formatoGs(c.presupuestado)}</td><td>${formatoGs(c.realizado)}</td><td class="${saldoClase}">${formatoGs(c.saldo)}</td>`;
+          tablaComites.appendChild(fila);
+        });
+
+        const diferencia = sumaPresupuestado - sumaRealizado;
+        const totalesComites = document.getElementById('totalesComites');
+        totalesComites.innerHTML = `<tr style="font-weight:700;background:#f6f8fb;">
+          <td>Total</td><td>${formatoGs(sumaPresupuestado)}</td><td>${formatoGs(sumaRealizado)}</td>
+          <td class="${diferencia < 0 ? 'neg' : 'pos'}">${formatoGs(diferencia)}</td></tr>`;
+
+        // ¿Alcanza la plata real disponible + TODO lo que falta cobrar hasta fin de año
+        // (venza o no) para cubrir todo lo que falta gastar según el presupuesto?
+        const faltaGastarSegunPlan = diferencia; // presupuestado - realizado contemplado
+        const proyeccionEl = document.getElementById('proyeccion');
+        const saldoProyectado = d.saldo + d.cuotasFinAnio.pendienteFinAnio;
+        const margen = saldoProyectado - faltaGastarSegunPlan;
+        if (faltaGastarSegunPlan <= 0) {
+          proyeccionEl.style.background = '#eaf7f4';
+          proyeccionEl.innerHTML = `<strong>✅ Los comités ya usaron o superaron su presupuesto total.</strong><br>
+            Saldo real disponible: ${formatoGs(d.saldo)}.`;
+        } else if (margen >= 0) {
+          proyeccionEl.style.background = '#eaf7f4';
+          proyeccionEl.innerHTML = `<strong>✅ Alcanzaría hasta fin de año.</strong><br>
+            Falta gastar ${formatoGs(faltaGastarSegunPlan)} según el presupuesto de los comités.
+            Hoy hay ${formatoGs(d.saldo)} disponibles, y cobrando TODO lo que falta hasta noviembre
+            (${formatoGs(d.cuotasFinAnio.pendienteFinAnio)}, venza o no) el saldo proyectado a fin de año sería ${formatoGs(saldoProyectado)}.
+            Margen: ${formatoGs(margen)}.`;
+        } else {
+          proyeccionEl.style.background = '#fdecec';
+          proyeccionEl.innerHTML = `<strong>⚠️ NO alcanzaría hasta fin de año.</strong><br>
+            Falta gastar ${formatoGs(faltaGastarSegunPlan)} según el presupuesto de los comités.
+            Hoy hay ${formatoGs(d.saldo)} disponibles, y aunque se cobre TODO lo que falta hasta noviembre
+            (${formatoGs(d.cuotasFinAnio.pendienteFinAnio)}, venza o no) el saldo proyectado a fin de año sería ${formatoGs(saldoProyectado)}
+            (los gastos no contemplados ya se llevaron ${formatoGs(d.totalNoContemplados)} de la caja general).
+            <br><strong>Faltante proyectado a fin de año: ${formatoGs(-margen)}</strong>`;
+        }
+
+        // Tabla de cobertura: de menor a mayor gasto pendiente, para ver hasta
+        // dónde alcanzaría la plata proyectada (saldo actual + todo lo que falta cobrar)
+        const tablaCobertura = document.getElementById('tablaCobertura');
+        const pendientesOrdenados = d.comites
+          .filter(c => c.saldo > 0)
+          .sort((a, b) => a.saldo - b.saldo);
+        let acumulado = 0;
+        if (pendientesOrdenados.length === 0) {
+          tablaCobertura.innerHTML = '<tr><td colspan="4" style="color:#999">No queda presupuesto pendiente en ningún comité</td></tr>';
+        } else {
+          pendientesOrdenados.forEach(c => {
+            acumulado += c.saldo;
+            const cubierto = acumulado <= saldoProyectado;
+            const fila = document.createElement('tr');
+            fila.innerHTML = `<td>${c.nombre}</td><td>${formatoGs(c.saldo)}</td><td>${formatoGs(acumulado)}</td>
+              <td class="${cubierto ? 'pos' : 'neg'}">${cubierto ? '✅ Sí' : '❌ No'}</td>`;
+            tablaCobertura.appendChild(fila);
+          });
+        }
+
+        document.getElementById('pendienteTotal').textContent = formatoGs(d.cuotas.pendienteAlaFecha);
+        document.getElementById('cantidadPendiente').textContent = d.cuotas.cantidadPendiente;
+        document.getElementById('pendienteFinAnio').textContent = formatoGs(d.cuotasFinAnio.pendienteFinAnio);
+
+        const tablaPendientes = document.getElementById('tablaPendientes');
+        if (d.cuotas.pendientesPorAlumno.length === 0) {
+          tablaPendientes.innerHTML = '<tr><td colspan="3" style="color:#999">Sin pendientes 🎉</td></tr>';
+        } else {
+          d.cuotas.pendientesPorAlumno.forEach(p => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `<td>${p.alumno}</td><td>${p.meses.join(', ')}</td><td>${formatoGs(p.monto)}</td>`;
+            tablaPendientes.appendChild(fila);
+          });
+        }
+
+        const tablaAportes = document.getElementById('tablaAportes');
+        d.aportesPorAlumno.forEach(a => {
+          const fila = document.createElement('tr');
+          fila.innerHTML = `<td>${a.alumno}</td><td>${a.cantidad}</td><td>${formatoGs(a.totalAportado)}</td>`;
+          tablaAportes.appendChild(fila);
+        });
+
+        const tablaAportesVarios = document.getElementById('tablaAportesVarios');
+        if (!d.aportesVarios || d.aportesVarios.length === 0) {
+          tablaAportesVarios.innerHTML = '<tr><td colspan="3" style="color:#999">Sin aportes varios registrados</td></tr>';
+        } else {
+          d.aportesVarios.forEach(a => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `<td>${a.alumno}</td><td>${a.descripcion || '-'}</td><td>${formatoGs(a.monto)}</td>`;
+            tablaAportesVarios.appendChild(fila);
+          });
+        }
+
+        const tablaReporte = document.getElementById('tablaReporte');
+        d.gastosDesglosados.forEach(g => {
+          const fila = document.createElement('tr');
+          const claseContemplado = g.contemplado === 'No' ? 'neg' : 'pos';
+          const comprobanteCelda = g.comprobante ? `<a href="${g.comprobante}" target="_blank">Ver</a>` : '-';
+          fila.innerHTML = `<td>${g.fecha}</td><td>${g.comite}</td><td>${g.categoria}</td><td>${g.descripcion}</td><td>${formatoGs(g.monto)}</td><td class="${claseContemplado}">${g.contemplado}</td><td>${comprobanteCelda}</td>`;
+          tablaReporte.appendChild(fila);
+        });
+      })
+      .catch(err => {
+        document.getElementById('loading').textContent = 'Error al cargar: ' + err.message;
+      });
+
+    document.getElementById('btnInforme').addEventListener('click', () => {
+      if (!datosDashboard) {
+        alert('Todavía se están cargando los datos, esperá un segundo y volvé a tocar el botón.');
+        return;
+      }
+      generarInforme(datosDashboard);
+    });
+
+    function generarInforme(d) {
+      const fecha = new Date().toLocaleDateString('es-PY', { year: 'numeric', month: 'long', day: 'numeric' });
+      const logoUrl = new URL('assets/logo.png', window.location.href).href;
+      const totalAportesVariosInforme = (d.aportesVarios || []).reduce((s, a) => s + a.monto, 0);
+      let sumaPresupuestado = 0, sumaRealizado = 0;
+      const filasComites = d.comites.map(c => {
+        sumaPresupuestado += c.presupuestado;
+        sumaRealizado += c.realizado;
+        return `<tr>
+          <td>${c.nombre}</td>
+          <td style="text-align:right">${formatoGs(c.presupuestado)}</td>
+          <td style="text-align:right">${formatoGs(c.realizado)}</td>
+          <td style="text-align:right;color:${c.saldo < 0 ? '#e63946' : '#2a9d8f'}">${formatoGs(c.saldo)}</td>
+        </tr>`;
+      }).join('');
+
+      // Desglose: cada gasto individual agrupado bajo su comité
+      const gastosPorComite = {};
+      (d.gastosDesglosados || []).forEach(g => {
+        if (!gastosPorComite[g.comite]) gastosPorComite[g.comite] = [];
+        gastosPorComite[g.comite].push(g);
+      });
+      const nombresComitesConGastos = Object.keys(gastosPorComite).sort();
+      const desgloseHtml = nombresComitesConGastos.map(nombre => {
+        const filas = gastosPorComite[nombre].map(g => `<tr>
+            <td>${g.fecha}</td><td>${g.categoria}</td><td>${g.descripcion}</td>
+            <td style="text-align:right">${formatoGs(g.monto)}</td>
+          </tr>`).join('');
+        const subtotal = gastosPorComite[nombre].reduce((s, g) => s + g.monto, 0);
+        return `<h4 style="margin-bottom:4px;">${nombre}</h4>
+          <table style="margin-bottom:14px;">
+            <thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th style="text-align:right">Monto</th></tr></thead>
+            <tbody>${filas}</tbody>
+            <tfoot><tr><td colspan="3">Subtotal</td><td style="text-align:right">${formatoGs(subtotal)}</td></tr></tfoot>
+          </table>`;
+      }).join('');
+      const faltaGastarSegunPlan = sumaPresupuestado - sumaRealizado;
+      const saldoProyectado = d.saldo + d.cuotasFinAnio.pendienteFinAnio;
+      const margen = saldoProyectado - faltaGastarSegunPlan;
+      let textoProyeccion;
+      if (faltaGastarSegunPlan <= 0) {
+        textoProyeccion = `Los comités ya usaron o superaron su presupuesto total. Saldo real disponible: ${formatoGs(d.saldo)}.`;
+      } else if (margen >= 0) {
+        textoProyeccion = `✅ Alcanzaría hasta fin de año. Falta gastar ${formatoGs(faltaGastarSegunPlan)} según el presupuesto de los comités. Hoy hay ${formatoGs(d.saldo)} disponibles, y cobrando TODO lo que falta hasta noviembre (${formatoGs(d.cuotasFinAnio.pendienteFinAnio)}, venza o no) el saldo proyectado a fin de año sería ${formatoGs(saldoProyectado)}. Margen: ${formatoGs(margen)}.`;
+      } else {
+        textoProyeccion = `⚠️ NO alcanzaría hasta fin de año. Falta gastar ${formatoGs(faltaGastarSegunPlan)} según el presupuesto de los comités. Hoy hay ${formatoGs(d.saldo)} disponibles, y aunque se cobre TODO lo que falta hasta noviembre (${formatoGs(d.cuotasFinAnio.pendienteFinAnio)}, venza o no) el saldo proyectado a fin de año sería ${formatoGs(saldoProyectado)} (los gastos no contemplados ya se llevaron ${formatoGs(d.totalNoContemplados)} de la caja general). Faltante proyectado: ${formatoGs(-margen)}.`;
+      }
+
+      const coberturaFilas = d.comites.filter(c => c.saldo > 0).sort((a, b) => a.saldo - b.saldo);
+      let acumuladoInforme = 0;
+      const coberturaHtml = coberturaFilas.map(c => {
+        acumuladoInforme += c.saldo;
+        const cubierto = acumuladoInforme <= saldoProyectado;
+        return `<tr><td>${c.nombre}</td><td style="text-align:right">${formatoGs(c.saldo)}</td><td style="text-align:right">${formatoGs(acumuladoInforme)}</td><td>${cubierto ? '✅ Sí' : '❌ No'}</td></tr>`;
+      }).join('');
+
+
+      const html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+        <meta charset="UTF-8">
+        <title>Informe Financiero - Aporte 3ro Azul</title>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; color: #222; padding: 32px; max-width: 800px; margin: 0 auto; }
+          .header { display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #1d3557; padding-bottom: 14px; margin-bottom: 20px; }
+          .header img { width: 56px; }
+          .header h1 { font-size: 20px; color: #1d3557; margin: 0; }
+          .header .fecha { font-size: 12px; color: #777; }
+          .resumen { display: flex; gap: 12px; margin-bottom: 24px; }
+          .resumen div { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; }
+          .resumen .label { font-size: 11px; color: #777; text-transform: uppercase; }
+          .resumen .valor { font-size: 17px; font-weight: 700; margin-top: 4px; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+          th, td { padding: 8px 10px; font-size: 12px; border-bottom: 1px solid #eee; text-align: left; }
+          th { background: #1d3557; color: #fff; }
+          tfoot td { font-weight: 700; background: #f6f8fb; }
+          @media print { body { padding: 10px; } }
+        </style>
+        </head>
+        <body>
+          <div class="header">
+            <img src="${logoUrl}" alt="CAS">
+            <div>
+              <h1>Informe Financiero — Aporte 3ro Azul</h1>
+              <div class="fecha">Generado el ${fecha}</div>
+            </div>
+          </div>
+
+          <div class="resumen">
+            <div><div class="label">Total recaudado</div><div class="valor" style="color:#2a9d8f">${formatoGs(d.totalIngresos)}</div>${totalAportesVariosInforme > 0 ? `<div style="font-size:9px;color:#999;">incl. ${formatoGs(totalAportesVariosInforme)} Aportes Varios</div>` : ''}</div>
+            <div><div class="label">Total gastado</div><div class="valor" style="color:#e63946">${formatoGs(d.totalGastos)}</div></div>
+            <div><div class="label">Saldo disponible</div><div class="valor" style="color:#1d3557">${formatoGs(d.saldo)}</div></div>
+            <div><div class="label">No contemplados</div><div class="valor" style="color:#e07a00">${formatoGs(d.totalNoContemplados)}</div></div>
+          </div>
+
+          <h3>Comités — Presupuesto vs Realizado</h3>
+          <table>
+            <thead><tr><th>Comité</th><th style="text-align:right">Presupuestado</th><th style="text-align:right">Realizado</th><th style="text-align:right">Saldo</th></tr></thead>
+            <tbody>${filasComites}</tbody>
+            <tfoot><tr><td>Total</td><td style="text-align:right">${formatoGs(sumaPresupuestado)}</td><td style="text-align:right">${formatoGs(sumaRealizado)}</td><td style="text-align:right">${formatoGs(sumaPresupuestado - sumaRealizado)}</td></tr></tfoot>
+          </table>
+
+          <h3>Detalle de gastos por comité</h3>
+          ${desgloseHtml || '<p style="font-size:13px;color:#999">Sin gastos registrados todavía.</p>'}
+
+          <h3>¿Alcanza para cubrir lo previsto?</h3>
+          <p style="font-size:13px;">${textoProyeccion}</p>
+
+          <h3>¿Qué comités se podrían cubrir? (de menor a mayor gasto pendiente)</h3>
+          <table>
+            <thead><tr><th>Comité</th><th style="text-align:right">Falta gastar</th><th style="text-align:right">Acumulado</th><th>¿Cubierto?</th></tr></thead>
+            <tbody>${coberturaHtml || '<tr><td colspan="4" style="color:#999">No queda presupuesto pendiente</td></tr>'}</tbody>
+          </table>
+
+          <h3>Cuotas pendientes a la fecha</h3>
+          <p style="font-size:13px;">${d.cuotas.cantidadPendiente} cuotas pendientes — ${formatoGs(d.cuotas.pendienteAlaFecha)}</p>
+          <p style="font-size:13px;">Falta cobrar hasta noviembre (venza o no): ${d.cuotasFinAnio.cantidadPendienteFinAnio} cuotas — ${formatoGs(d.cuotasFinAnio.pendienteFinAnio)}</p>
+        </body>
+        </html>`;
+
+      const ventana = window.open('', '_blank');
+      ventana.document.write(html);
+      ventana.document.close();
+      ventana.onload = () => ventana.print();
+    }
+  </script>
+</body>
+</html>

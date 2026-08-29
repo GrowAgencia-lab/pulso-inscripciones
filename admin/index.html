@@ -194,7 +194,7 @@ tr.dragging{opacity:.4}
     <div class="tab" onclick="goTab('masterclass')">🎓 MasterClass</div>
     <div class="tab admin-only" onclick="goTab('academias')">🏫 Academias</div>
     <div class="tab admin-only" onclick="goTab('log')">🕐 Actividad</div>
-    <div class="tab" onclick="goTab('finanzas')">💰 Finanzas</div>
+    <div class="tab" id="tab-finanzas" onclick="goTab('finanzas')">💰 Finanzas</div>
   </div>
 
   <div class="content">
@@ -996,13 +996,16 @@ async function cargarActividad(){
 // ── ROL Y ACCESO ───────────────────────────────────────────
 function aplicarRol(rol) {
   const adminEls = document.querySelectorAll('.admin-only');
+  const tabFinanzas = document.getElementById('tab-finanzas');
   if (rol === 'finanzas') {
-    // Ocultar tabs admin
     adminEls.forEach(el => el.style.display = 'none');
-    // Ir directo a finanzas
     goTab('finanzas');
+  } else if (rol === 'sin_finanzas') {
+    adminEls.forEach(el => el.style.display = '');
+    if (tabFinanzas) tabFinanzas.style.display = 'none';
   } else {
     adminEls.forEach(el => el.style.display = '');
+    if (tabFinanzas) tabFinanzas.style.display = '';
   }
 }
 

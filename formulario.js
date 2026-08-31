@@ -34,23 +34,23 @@ const PULSO_CONFIG = {
     texto_2do_llamado: "20 de Agosto hasta cerrar inscripciones",
   },
   // ── CIERRES PARCIALES DE INSCRIPCIÓN ────────────────────
-  // Interruptor general: poné "activo: false" acá abajo para desactivar
-  // TODOS los cierres de golpe y volver a admitir todo, sin borrar la configuración.
+  // Esto define QUÉ cierra cada llave (fijo). El on/off de cada llave se
+  // prende/apaga en vivo desde la pestaña "🚦 Cierres" del panel admin —
+  // no hace falta tocar este archivo para abrir o cerrar algo.
   // "tipos_cerrados" puede tener: solista, duo, trio, cuarteto, grupo, gran_grupo
   cierres_inscripcion: {
-    activo: true,
     // Cierra ciertos tipos de participación para las modalidades que caen en cada día
     por_modalidad: [
-      { dia: "Jueves",  modalidades: ["Ballet Clásico Repertorio","Ballet Clásico Libre","Neoclásico"],
+      { clave: "jueves",  modalidades: ["Ballet Clásico Repertorio","Ballet Clásico Libre","Neoclásico"],
         tipos_cerrados: ["solista","duo","trio","cuarteto","grupo"] }, // Gran Grupo sigue abierto
-      { dia: "Sábado",  modalidades: ["Danza Española","Folklore Internacional","Danza Paraguaya"],
+      { clave: "sabado",  modalidades: ["Danza Española","Folklore Internacional","Danza Paraguaya"],
         tipos_cerrados: ["solista","duo","trio","cuarteto","grupo"] }, // Gran Grupo sigue abierto
-      { dia: "Viernes", modalidades: ["Contemporáneo","Técnica Libre","Acrodance","Libre / Show / Urban"],
+      { clave: "viernes", modalidades: ["Contemporáneo","Técnica Libre","Acrodance","Libre / Show / Urban"],
         tipos_cerrados: ["solista","duo","trio","cuarteto","grupo","gran_grupo"] }, // todo cerrado
     ],
     // Categorías que quedan cerradas para TODO tipo de participación sin importar la modalidad
     // (Baby y Mini siempre caen en el bloque del Viernes)
-    categorias_cerradas_todo_tipo: ["baby","mini"],
+    categoria_clave: { baby: "baby_mini", mini: "baby_mini" },
   },
   costos: {
     primer_llamado: {
@@ -1306,6 +1306,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('ci-buscar').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscarCI();}});
   document.getElementById('nombre-buscar').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscarNombre();}});
   cargarDesdeStorage();
+  cargarCierresInscripcion();
   verificarLlamado();
   inyectarImagenes();
 });
@@ -1391,14 +1392,31 @@ const TIPOS_PART=[
   {value:'gran_grupo', label:'Gran Grupo (11 o más)'},
 ];
 
+// Estado en vivo de cada llave de cierre (true = cerrado). Arranca en "todo cerrado"
+// por seguridad hasta que llegue la respuesta del servidor, y también si esa consulta falla.
+let CIERRES_ACTIVOS={ jueves:true, sabado:true, viernes:true, baby_mini:true };
+
+async function cargarCierresInscripcion(){
+  try{
+    const r=await fetch(SCRIPT_URL+'?accion=getCierresInscripcion&_='+Date.now());
+    const json=await r.json();
+    if(json.cierres) CIERRES_ACTIVOS=Object.assign({},CIERRES_ACTIVOS,json.cierres);
+  }catch(e){
+    // Si falla la consulta, se quedan los valores por defecto (cerrado) para no arriesgar
+  }
+  actualizarDisponibilidadTipo();
+}
+
 function getTiposCerrados(modalidad,categoria){
-  if(!cfg||!cfg.cierres_inscripcion||!cfg.cierres_inscripcion.activo) return [];
-  const cierre=cfg.cierres_inscripcion;
-  if((cierre.categorias_cerradas_todo_tipo||[]).includes(categoria)){
+  const cierre=cfg&&cfg.cierres_inscripcion;
+  if(!cierre) return [];
+  const claveCat=(cierre.categoria_clave||{})[categoria];
+  if(claveCat && CIERRES_ACTIVOS[claveCat]){
     return TIPOS_PART.map(t=>t.value); // categoría cerrada para todo tipo (ej: Baby/Mini en Viernes)
   }
   const regla=(cierre.por_modalidad||[]).find(r=>(r.modalidades||[]).includes(modalidad));
-  return regla ? (regla.tipos_cerrados||[]) : [];
+  if(regla && CIERRES_ACTIVOS[regla.clave]) return regla.tipos_cerrados||[];
+  return [];
 }
 
 function actualizarDisponibilidadTipo(){

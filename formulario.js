@@ -44,7 +44,7 @@ const PULSO_CONFIG = {
       { clave: "jueves",  modalidades: ["Ballet Clásico Repertorio","Ballet Clásico Libre","Neoclásico"],
         tipos_cerrados: ["solista","duo","trio","cuarteto","grupo"] }, // Gran Grupo sigue abierto
       { clave: "sabado",  modalidades: ["Danza Española","Folklore Internacional","Danza Paraguaya"],
-        tipos_cerrados: ["solista","duo","trio","cuarteto","grupo"] }, // Gran Grupo sigue abierto
+        tipos_cerrados: ["solista","duo","trio","cuarteto","grupo","gran_grupo"] }, // todo cerrado
       { clave: "viernes", modalidades: ["Contemporáneo","Técnica Libre","Acrodance","Libre / Show / Urban"],
         tipos_cerrados: ["solista","duo","trio","cuarteto","grupo","gran_grupo"] }, // todo cerrado
     ],

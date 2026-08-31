@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin — PULSO 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#6B21A8;--pd:#3B0764;--a:#EAB308;--a2:#A855F7;--bg:#F3F0FF;--card:#fff;--txt:#1C1033;--borde:#DDD6FE}
+body{background:var(--bg);font-family:'Segoe UI',system-ui,sans-serif;color:var(--txt);font-size:14px}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--pd),var(--p),var(--a2))}
+.login-box{background:#fff;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-box img{height:60px;display:block;margin:0 auto 1.25rem}
+.login-box h2{text-align:center;color:var(--pd);font-size:1.2rem;margin-bottom:.25rem}
+.login-box p{text-align:center;color:#888;font-size:.82rem;margin-bottom:1.5rem}
+.lbl-field{display:block;font-size:.78rem;font-weight:600;color:var(--p);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.3rem;margin-top:.75rem}
+.login-box input{width:100%;padding:.6rem .85rem;border:1.5px solid var(--borde);border-radius:8px;font-size:.95rem;color:var(--txt)}
+.login-box input:focus{outline:none;border-color:var(--p)}
+.btn-login{width:100%;margin-top:1.25rem;padding:.75rem;background:linear-gradient(90deg,var(--p),var(--a2));border:none;border-radius:10px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer}
+.login-error{background:#FFF5F5;border:1px solid #FC8181;border-radius:8px;padding:.6rem;font-size:.82rem;color:#C53030;margin-top:.75rem;display:none;text-align:center}
+
+/* APP */
+.app{display:none;min-height:100vh}
+.topbar{background:linear-gradient(90deg,var(--pd),var(--p));padding:.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar img{height:34px}
+.topbar h1{color:#fff;font-size:.9rem;font-weight:600;margin-left:.6rem}
+.topbar-left{display:flex;align-items:center}
+.topbar-right{display:flex;align-items:center;gap:.75rem}
+.user-badge{background:rgba(255,255,255,.15);color:#fff;padding:.3rem .75rem;border-radius:99px;font-size:.78rem}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:.3rem .75rem;border-radius:99px;font-size:.75rem;cursor:pointer}
+
+/* TABS */
+.tabs{background:#fff;border-bottom:2px solid var(--borde);padding:0 1.5rem;display:flex}
+.tab{padding:.7rem 1.1rem;font-size:.83rem;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.active{color:var(--p);border-bottom-color:var(--p)}
+
+/* CONTENT */
+.content{max-width:1200px;margin:0 auto;padding:1.5rem}
+.panel{display:none}.panel.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:#fff;border-radius:12px;border:1px solid var(--borde);padding:1rem;text-align:center}
+.stat-card .num{font-size:2rem;font-weight:700;color:var(--p)}
+.stat-card .lbl{font-size:.72rem;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-top:.2rem}
+
+.sec-title{font-size:.88rem;font-weight:700;color:var(--pd);margin:1.5rem 0 .6rem;border-bottom:2px solid var(--borde);padding-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+
+/* TABLES */
+.tbl-wrap{background:#fff;border-radius:12px;border:1px solid var(--borde);overflow:auto;margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;font-size:.81rem;min-width:500px}
+th{background:var(--pd);color:#fff;padding:.55rem .75rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;white-space:nowrap}
+td{padding:.5rem .75rem;border-bottom:1px solid #F3F0FF;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFF}
+
+.badge{display:inline-block;padding:.15rem .45rem;border-radius:99px;font-size:.7rem;font-weight:600;white-space:nowrap}
+.b-cat{background:#EDE9FE;color:var(--p)}
+.b-mod{background:#FEF3C7;color:#92400E}
+.b-tipo{background:#D1FAE5;color:#065F46}
+.b-vivo{background:#FEE2E2;color:#991B1B}
+.b-mp3{background:#DBEAFE;color:#1E40AF}
+
+/* ACADEMIAS */
+.acad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.5rem;margin-bottom:1rem}
+.acad-btn{background:#fff;border:1.5px solid var(--borde);border-radius:10px;padding:.55rem .85rem;cursor:pointer;text-align:left;transition:.15s}
+.acad-btn:hover{border-color:var(--p);background:#F5F0FF}
+.acad-name{font-weight:600;color:var(--pd);font-size:.8rem}
+.acad-num{font-size:.72rem;color:#888;margin-top:.1rem}
+
+/* ORDEN */
+.orden-bar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+.btn-dia{padding:.4rem .8rem;border:1.5px solid var(--borde);border-radius:8px;background:#fff;color:var(--p);font-size:.78rem;font-weight:600;cursor:pointer}
+.btn-dia.active{background:var(--p);color:#fff;border-color:var(--p)}
+.tiempo-chip{background:var(--pd);color:var(--a);padding:.4rem .85rem;border-radius:8px;font-size:.78rem;font-weight:700;margin-left:auto}
+.drag-info{font-size:.72rem;color:#888;background:#FEF9C3;padding:.3rem .6rem;border-radius:6px;border:1px solid #F59E0B;display:none;margin-bottom:.75rem}
+.drag-handle{cursor:grab;color:#bbb;padding:0 4px;user-select:none}
+.drag-handle:active{cursor:grabbing}
+tr.dragging{opacity:.4}
+.musica-link{color:var(--p);text-decoration:none;font-size:.75rem}
+.musica-link:hover{text-decoration:underline}
+
+/* BLOQUES */
+.bloque-wrap{margin-bottom:1.4rem}
+.bloque-header{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:linear-gradient(90deg,var(--pd),var(--p));color:#fff;padding:.6rem 1rem;border-radius:10px 10px 0 0}
+.bloque-nombre{font-weight:800;font-size:.85rem;background:var(--a);color:var(--pd);padding:.15rem .6rem;border-radius:6px}
+.bloque-jurado{font-size:.75rem;opacity:.95;flex:1}
+.bloque-tiempo{font-size:.75rem;font-weight:700;background:rgba(255,255,255,.15);padding:.15rem .55rem;border-radius:6px;white-space:nowrap}
+.bloque-wrap .tbl-wrap{border-radius:0 0 12px 12px;margin-bottom:0;border-top:none}
+
+/* BUTTONS */
+.btn-pdf{background:var(--a);color:var(--pd);border:none;border-radius:8px;padding:.4rem .75rem;font-size:.75rem;font-weight:700;cursor:pointer}
+.btn-sec{background:var(--p);color:#fff;border:none;border-radius:8px;padding:.4rem .75rem;font-size:.75rem;font-weight:600;cursor:pointer}
+.btn-sm{background:#EDE9FE;color:var(--p);border:none;border-radius:6px;padding:.25rem .5rem;font-size:.72rem;cursor:pointer}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:88vh;overflow-y:auto;padding:1.5rem}
+.modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-hdr h3{color:var(--pd);font-size:.95rem;font-weight:700}
+.btn-x{background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888;line-height:1}
+
+/* LOADING */
+.loading{text-align:center;padding:3rem;color:#aaa}
+.sp{display:inline-block;width:16px;height:16px;border:2px solid #DDD6FE;border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media print{
+  .topbar,.tabs,.orden-bar,.btn-pdf,.btn-sec,.btn-sm,.btn-x,.drag-handle{display:none!important}
+  .panel{display:block!important}
+  body.imprimiendo .login-wrap,
+  body.imprimiendo .app{display:none!important}
+  body.imprimiendo #print-academia{display:block!important}
+}
+#print-academia{display:none}
+
+/* ── FINANZAS ── */
+.fin-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.2rem;flex-wrap:wrap;gap:10px}
+.fin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1rem;margin-bottom:1.5rem}
+.fin-stat{background:#fff;border-radius:12px;border:1px solid #EDE9FE;padding:1rem 1.2rem;text-align:center}
+.fin-stat .fs-num{font-size:1.3rem;font-weight:800;color:#3B0764;white-space:nowrap}
+.fin-stat .fs-lbl{font-size:.75rem;color:#888;margin-top:2px}
+.fin-card{background:#fff;border-radius:12px;border:1px solid #EDE9FE;padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.fin-resumen{background:#EDE9FE;border-radius:8px;padding:8px 16px;font-size:.85rem;color:#3B0764;font-weight:700}
+.btn-fin-refresh{background:#6B21A8;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.82rem;font-weight:600}
+.fin-academia-row{display:grid;grid-template-columns:1fr 90px 130px 120px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s;border-bottom:1px solid #F3F0FF;gap:8px}
+.fin-academia-row:hover{background:#F5F0FF}
+.fin-academia-row:last-child{border-bottom:none}
+.fin-ac-nombre{font-weight:600;color:#3B0764;font-size:.9rem;text-align:left}
+.fin-ac-obras{font-size:.78rem;color:#888;text-align:right}
+.fin-ac-deuda{font-weight:700;font-size:.88rem;color:#7C3AED;text-align:right}
+.fin-ac-estado{display:flex;justify-content:flex-end;align-items:center}
+.badge-pagado{background:#DCFCE7;color:#16A34A;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:700}
+.badge-parcial{background:#FEF9C3;color:#92400E;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:700}
+.badge-pendiente-fin{background:#FEE2E2;color:#991B1B;border-radius:20px;padding:2px 10px;font-size:.75rem;font-weight:700}
+.obra-fin-row{padding:10px 12px;border-radius:8px;border:1px solid #EDE9FE;margin-bottom:8px}
+.obra-fin-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.obra-fin-nombre{font-weight:700;color:#3B0764;font-size:.88rem}
+.obra-fin-meta{font-size:.75rem;color:#888;margin-top:2px}
+.obra-fin-monto{font-weight:800;color:#7C3AED;font-size:.9rem;white-space:nowrap}
+.obra-fin-acciones{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.btn-ok{background:#16A34A;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.78rem;font-weight:700}
+.btn-ok:hover{background:#15803D}
+.btn-ok.ya-pago{background:#BBF7D0;color:#166534;cursor:default}
+.btn-pendiente{background:#EF4444;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.78rem;font-weight:700}
+.btn-upload-comp{background:#6B21A8;color:#fff;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.78rem;font-weight:700}
+.comp-link{font-size:.75rem;color:#6B21A8;text-decoration:underline;cursor:pointer}
+.fin-totales-row{display:flex;justify-content:flex-end;padding:10px 0 0;border-top:2px solid #EDE9FE;margin-top:6px;gap:20px}
+.fin-total-item{text-align:right}
+.fin-total-item .label{font-size:.75rem;color:#888}
+.fin-total-item .valor{font-weight:800;color:#3B0764;font-size:1rem}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <img src="../logo.png" alt="PULSO 2026"/>
+    <h2>Panel Administrativo</h2>
+    <p>PULSO Festival Internacional de Danza 2026</p>
+    <label class="lbl-field">Usuario</label>
+    <input type="text" id="inp-user" placeholder="usuario" autocomplete="username"/>
+    <label class="lbl-field">Contraseña</label>
+    <div style="position:relative">
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding-right:2.2rem"/>
+      <span onclick="togglePass()" style="position:absolute;right:.7rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1.1rem;user-select:none" id="toggle-pass-icon">👁️</span>
+    </div>
+    <div class="login-error" id="login-err">Usuario o contraseña incorrectos</div>
+    <button class="btn-login" onclick="doLogin()">Ingresar al sistema</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img src="../logo.png" alt="PULSO"/>
+      <h1>Panel Administrativo — PULSO 2026</h1>
+    </div>
+    <div class="topbar-right">
+      <span class="user-badge" id="user-badge">👤</span>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs-main">
+    <div class="tab active" onclick="goTab('dashboard')">📊 Dashboard</div>
+    <div class="tab admin-only" onclick="goTab('orden')">📋 Orden Tentativo</div>
+    <div class="tab" onclick="goTab('pulseras')">🎗 Pulseras &amp; Cert.</div>
+    <div class="tab" onclick="goTab('masterclass')">🎓 MasterClass</div>
+    <div class="tab admin-only" onclick="goTab('academias')">🏫 Academias</div>
+    <div class="tab admin-only" onclick="goTab('log')">🕐 Actividad</div>
+    <div class="tab" id="tab-finanzas" onclick="goTab('finanzas')">💰 Finanzas</div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="loading"><span class="sp"></span>Cargando datos...</div>
+    </div>
+
+    <!-- ORDEN -->
+    <div class="panel" id="panel-orden">
+      <div class="fin-card" style="margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <strong style="color:#3B0764;font-size:.85rem">🔒 Modificación de música (portal de academias)</strong>
+          <label style="font-size:.8rem;display:flex;align-items:center;gap:.4rem">
+            Fecha límite:
+            <input type="date" id="cfg-fecha-limite" style="padding:.3rem .5rem;border:1.5px solid #DDD6FE;border-radius:6px;font-size:.8rem"/>
+          </label>
+          <label style="font-size:.8rem;display:flex;align-items:center;gap:.4rem;cursor:pointer">
+            <input type="checkbox" id="cfg-bloqueo-manual"/> Bloquear ahora (manual)
+          </label>
+          <button class="btn-sec" onclick="guardarConfigMusica()">💾 Guardar</button>
+          <span id="cfg-musica-estado" style="font-size:.78rem;color:#888"></span>
+        </div>
+      </div>
+      <div class="fin-card" style="margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <strong style="color:#3B0764;font-size:.85rem">👁 Orden de Participación pública (app)</strong>
+          <label style="font-size:.8rem;display:flex;align-items:center;gap:.4rem;cursor:pointer"><input type="checkbox" id="cfg-pub-jue"/> Jueves</label>
+          <label style="font-size:.8rem;display:flex;align-items:center;gap:.4rem;cursor:pointer"><input type="checkbox" id="cfg-pub-vie"/> Viernes</label>
+          <label style="font-size:.8rem;display:flex;align-items:center;gap:.4rem;cursor:pointer"><input type="checkbox" id="cfg-pub-sab"/> Sábado</label>
+          <label style="font-size:.8rem;display:flex;align-items:center;gap:.4rem;cursor:pointer"><input type="checkbox" id="cfg-pub-dom"/> Domingo</label>
+          <button class="btn-sec" onclick="guardarConfigOrdenPublico()">💾 Guardar</button>
+          <span id="cfg-pub-estado" style="font-size:.78rem;color:#888"></span>
+        </div>
+      </div>
+      <div class="orden-bar">
+        <button class="btn-dia active" id="bd-jue" onclick="setDia('jue')">Jue 10</button>
+        <button class="btn-dia" id="bd-vie" onclick="setDia('vie')">Vie 11</button>
+        <button class="btn-dia" id="bd-sab" onclick="setDia('sab')">Sáb 12</button>
+        <button class="btn-dia" id="bd-dom" onclick="setDia('dom')">Dom 13</button>
+        <span class="tiempo-chip" id="tiempo-chip">⏱ —</span>
+        <button class="btn-pdf" onclick="window.print()">⬇ PDF Orden</button>
+        <button class="btn-sec" onclick="actualizarHojaLegible()" id="btn-hoja-legible">📄 Actualizar hoja del Sheet (este día)</button>
+        <button class="btn-sec" onclick="actualizarTodasLasHojas()" id="btn-hojas-todas">📄📄 Actualizar los 4 días</button>
+        <button class="btn-sec" style="background:#B45309" onclick="vincularOrdenDelSheet()" id="btn-vincular-sheet">🔗 Vincular con lo que ya está en el Sheet</button>
+        <button class="btn-sec" onclick="toggleEdicion()" id="btn-edicion">🔓 Habilitar edición</button>
+      </div>
+      <div class="drag-info" id="drag-info">✋ Arrastrá las filas para reordenar dentro de cada bloque (no se pueden mover entre bloques distintos)</div>
+      <div id="tbl-orden-wrap"></div>
+    </div>
+
+    <!-- PULSERAS -->
+    <div class="panel" id="panel-pulseras">
+      <div class="sec-title">🎗 Pulseras y certificados por academia
+        <button class="btn-pdf" style="margin-left:auto" onclick="window.print()">⬇ PDF General</button>
+      </div>
+      <div class="tbl-wrap">
+        <table id="tbl-pulseras">
+          <tr><th>Academia</th><th style="text-align:center">Participantes únicos</th><th style="text-align:center">Pulseras</th><th style="text-align:center">Certificados</th></tr>
+        </table>
+      </div>
+
+      <div class="sec-title">🎓 Profesores únicos (coreógrafos y preparadores)</div>
+      <p style="font-size:.78rem;color:#888;margin-bottom:.5rem">Un profesor que da clases en varias academias recibe una sola pulsera.</p>
+      <div class="tbl-wrap">
+        <table id="tbl-profesores">
+          <tr><th>Profesor/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>
+        </table>
+      </div>
+
+      <div class="sec-title">🎩 Directores únicos</div>
+      <div class="tbl-wrap">
+        <table id="tbl-directores">
+          <tr><th>Director/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- MASTERCLASS -->
+    <div class="panel" id="panel-masterclass">
+      <div class="sec-title">🎓 Inscripciones a MasterClass
+        <button class="btn-sec" style="margin-left:auto" onclick="cargarMasterClassAdmin()">🔄 Actualizar</button>
+      </div>
+      <div id="mc-resumen" style="margin-bottom:1rem"></div>
+
+      <div class="fin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+          <div>
+            <h3 style="color:#3B0764;margin:0">📋 Desglose por curso</h3>
+            <div style="font-size:.78rem;color:#888;margin-top:2px">Lista de participantes de cada MasterClass — usala para entregar pulseras, pasar lista y armar los certificados</div>
+          </div>
+          <button class="btn-sec" onclick="imprimirDesgloseCursos()">🖨 Imprimir / PDF</button>
+        </div>
+        <div id="mc-desglose-cursos"></div>
+      </div>
+
+      <div class="fin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="color:#3B0764;margin:0">Inscripciones por academia</h3>
+          <input type="text" id="mc-buscar" placeholder="🔍 Buscar academia..." oninput="filtrarMCAcademias()"
+            style="padding:6px 12px;border:1.5px solid #DDD6FE;border-radius:8px;font-size:.85rem;outline:none;width:220px"/>
+        </div>
+        <div id="mc-tabla" class="loading"><span class="sp"></span> Cargando...</div>
+      </div>
+
+      <div class="fin-card" id="mc-detalle-card" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 id="mc-detalle-titulo" style="color:#3B0764;margin:0"></h3>
+          <button onclick="cerrarDetalleMC()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:#888">✕</button>
+        </div>
+        <div id="mc-detalle-contenido"></div>
+      </div>
+    </div>
+
+    <!-- ACADEMIAS -->
+    <div class="panel" id="panel-academias">
+      <div class="sec-title">🏫 Catastro de Academias
+        <button class="btn-sec" style="margin-left:auto" onclick="cargarAcademiasAdmin()">🔄 Actualizar</button>
+      </div>
+      <div class="fin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <div style="font-size:.82rem;color:#888">Usá esta lista para pasarle a cada academia su código y contraseña de acceso a "Tus Inscripciones" y al portal de música.</div>
+          <input type="text" id="acad-buscar" placeholder="🔍 Buscar academia..." oninput="filtrarAcademiasAdmin()"
+            style="padding:6px 12px;border:1.5px solid #DDD6FE;border-radius:8px;font-size:.85rem;outline:none;width:220px;flex-shrink:0;margin-left:1rem"/>
+        </div>
+        <div id="acad-admin-tabla" class="loading"><span class="sp"></span> Cargando...</div>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="panel" id="panel-log">
+      <div class="sec-title">🕐 Registro de actividad del sistema</div>
+      <div class="tbl-wrap">
+        <table id="tbl-log">
+          <tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr>
+        </table>
+      </div>
+    </div>
+      
+    <!-- FINANZAS -->
+    <div class="panel" id="panel-finanzas">
+      <div class="fin-header">
+        <div>
+          <h2 style="color:#3B0764;margin:0">💰 Panel Financiero</h2>
+          <div style="font-size:.82rem;color:#888;margin-top:2px">PULSO Festival Internacional de Danza 2026</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="fin-resumen" id="fin-resumen-total"></div>
+          <button class="btn-fin-refresh" onclick="cargarFinanzas()">🔄 Actualizar</button>
+        </div>
+      </div>
+
+      <!-- Totales rápidos -->
+      <div class="fin-stats" id="fin-stats"></div>
+
+      <!-- Tabla por academia -->
+      <div class="fin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="color:#3B0764;margin:0">Estado de pago por academia</h3>
+          <input type="text" id="fin-buscar" placeholder="🔍 Buscar academia..." oninput="filtrarFinanzas()"
+            style="padding:6px 12px;border:1.5px solid #DDD6FE;border-radius:8px;font-size:.85rem;outline:none;width:220px"/>
+        </div>
+        <div id="fin-tabla" class="loading"><span class="sp"></span> Cargando...</div>
+      </div>
+
+      <!-- Detalle academia seleccionada -->
+      <div class="fin-card" id="fin-detalle-card" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 id="fin-detalle-titulo" style="color:#3B0764;margin:0"></h3>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <button class="btn-pdf" id="btn-pdf-academia" onclick="imprimirAcademia()">⬇ PDF</button>
+            <button onclick="cerrarDetalle()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:#888">✕</button>
+          </div>
+        </div>
+        <div id="fin-detalle-contenido"></div>
+      </div>
+    </div>
+
+
+</div>
+
+  </div>
+</div>
+
+<!-- Contenido oculto usado solo para generar el PDF de "Tus Inscripciones" por academia -->
+<div id="print-academia"></div>
+
+<!-- MODAL ACADEMIA -->
+<div class="overlay" id="modal-acad">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-title">Academia</h3>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn-pdf" onclick="window.print()">⬇ PDF</button>
+        <button class="btn-x" onclick="cerrarModal()">✕</button>
+      </div>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ─── USUARIOS ────────────────────────────────────────────
+const USUARIOS = [
+  {u:"rebeca",   nombre:"Rebeca Sánchez",  h:"8caf633a21d05cef885061ac3b8b9c8e73f0c14c795fb31d8e4fc7d9a2ade6eb", rol:"admin"},
+  {u:"carmen",   nombre:"Carmen Cañete",   h:"c961a3a299ccc240a7daf549ce71f677d070c4d560c1d1fb9f3fbb053a8e1c6e", rol:"admin"},
+  {u:"angel",    nombre:"Angel Ovelar",    h:"3ca0c1098be006f525ea33ed1e520d05e44fbd93dea6eb1abdcff4e85300dfc3", rol:"admin"},
+  {u:"finanzas", nombre:"Finanzas PULSO",  h:"19dbbc4179be4ad522a5f213345069fd91cff52e3130c419fb8a002b07537499", rol:"finanzas"},
+  {u:"eduardo",  nombre:"Eduardo Leiva",   h:"7c21abf22355cd85f1c0f086a1ee35664004a1e3bd3bc9fb9fba0b6947a94007", rol:"sin_finanzas"},
+];
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLDZFKXMYPaL0UlUjStOso_vyeC8UdDqVuw3T_SyjzHLbRqxjDRQ/exec";
+
+const DIAS = {
+  jue:{label:"Jueves 10 de Septiembre"},
+  vie:{label:"Viernes 11 de Septiembre"},
+  sab:{label:"Sábado 12 de Septiembre"},
+  dom:{label:"Domingo 13 de Septiembre"},
+};
+
+// ── BLOQUES POR DÍA (con modalidades, categorías y jurado) ──
+// modalidades:null o categorias:null = aplica a todas
+const BLOQUES = {
+  jue: [
+    { nombre:"Bloque 1", modalidades:["Neoclásico","Ballet Clásico Libre","Ballet Clásico Repertorio"],
+      categorias:["kids1","kids2","kids3"],
+      jurado:["Carlla Bublitz (Br)","Carol Segurado (Br)","Miguel Bonnin (Py)"] },
+    { nombre:"Bloque 2", modalidades:["Ballet Clásico Repertorio","Ballet Clásico Libre","Neoclásico"],
+      categorias:["junior","teens","senior","profesional"],
+      jurado:["Carlla Bublitz (Br)","Carol Segurado (Br)","Miguel Bonnin (Py)"] },
+  ],
+  vie: [
+    { nombre:"Bloque 1", modalidades:["Contemporáneo"],
+      categorias:null,
+      jurado:["Carol Segurado (Br)","Jhean Alex (Br)","Carlla Bublitz (Br)"] },
+    { nombre:"Bloque 2", modalidades:["Acrodance","Libre / Show / Urban"],
+      categorias:null,
+      jurado:[], catchAll:"baby_mini" },
+    { nombre:"Bloque 3", modalidades:["Técnica Libre"],
+      categorias:null,
+      jurado:["Carol Segurado (Br)","Jhean Alex (Br)","Carlla Bublitz (Br)"] },
+  ],
+  sab: [
+    { nombre:"Bloque 1", modalidades:["Danza Española"],
+      categorias:null,
+      jurado:["Pedro Córdoba (Es)","Liz Mora (Py)"] },
+    { nombre:"Bloque 2", modalidades:["Folklore Internacional"],
+      categorias:null,
+      jurado:["Gilda Ruiz de Segovia (Py)","Liz Mora (Py)"] },
+    { nombre:"Bloque 3", modalidades:["Danza Paraguaya"],
+      categorias:null,
+      jurado:["Gilda Ruiz de Segovia (Py)","Liz Mora (Py)"] },
+  ],
+  dom: [
+    { nombre:"Bloque 1", modalidades:["Jazz"],
+      categorias:null,
+      jurado:["Jhean Alex (Br)"] },
+  ],
+};
+
+const CAT_ORD = ["baby","mini","kids1","kids2","kids3","junior","teens","senior","adulto","profesional","aficionado"];
+const CAT_LBL = {baby:"Baby",mini:"Mini",kids1:"Kids I",kids2:"Kids II",kids3:"Kids III",junior:"Junior",teens:"Teens",senior:"Senior",adulto:"Adulto",profesional:"Profesional",aficionado:"Aficionado"};
+
+let ME = null;
+let DATA = [];
+let ORDEN = {};
+let DIA = "jue";
+let EDICION = false;
+let LOG = [];
+let DRAG_IDX = null;
+let DRAG_BLOQUE = null;
+
+// ─── LOGIN ────────────────────────────────────────────────
+async function sha256(s){
+  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+function togglePass(){
+  const inp=document.getElementById("inp-pass");
+  const icon=document.getElementById("toggle-pass-icon");
+  if(inp.type==="password"){
+    inp.type="text";
+    icon.textContent="🙈";
+  }else{
+    inp.type="password";
+    icon.textContent="👁️";
+  }
+}
+
+async function doLogin(){
+  const u=document.getElementById("inp-user").value.trim().toLowerCase();
+  const p=document.getElementById("inp-pass").value;
+  const h=await sha256(p);
+  const found=USUARIOS.find(x=>x.u===u&&x.h===h);
+  if(!found){document.getElementById("login-err").style.display="block";return;}
+  ME=found;
+  document.getElementById("login-wrap").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("user-badge").textContent="👤 "+ME.nombre;
+  log("Inicio de sesión");
+  aplicarRol(ME.rol || "admin");
+  cargarDatos();
+}
+
+function doLogout(){log("Cierre de sesión");ME=null;location.reload();}
+document.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+
+// ─── TABS ─────────────────────────────────────────────────
+function goTab(t){
+  const orden=["dashboard","orden","pulseras","masterclass","academias","log","finanzas"];
+  document.querySelectorAll(".tab").forEach((el,i)=>{
+    el.classList.toggle("active",orden[i]===t);
+  });
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+  document.getElementById("panel-"+t).classList.add("active");
+  if(t==="orden"){ abrirOrdenTentativo(); cargarConfigMusica(); }
+  if(t==="pulseras") renderPulseras();
+  if(t==="masterclass") cargarMasterClassAdmin();
+  if(t==="academias") cargarAcademiasAdmin();
+  if(t==="log") cargarActividad();
+  if(t==="finanzas") cargarFinanzas();
+}
+
+// ─── DATOS ────────────────────────────────────────────────
+async function cargarDatos(){
+  try{
+    const r=await fetch(SCRIPT_URL+"?accion=getInscripciones");
+    const json=await r.json();
+    DATA=json.data||[];
+  }catch(e){
+    DATA=getDemoData();
+  }
+  renderDashboard();
+}
+
+function getDemoData(){
+  return [
+    {id:"P1",obra:"Aurora Boreal",academia:"Academia de Danzas GlauDance",modalidad:"Ballet Clásico Repertorio",categoria:"kids1",tipo_part:"solista",participantes:[{nombre:"Martina Cornet Barreto",ci:"7737098",edad:12}],duracion:"02:30",tipo_musica:"mp3"},
+    {id:"P2",obra:"Sombras",academia:"Escuela de Danzas Marisol Valdez",modalidad:"Contemporáneo",categoria:"teens",tipo_part:"duo",participantes:[{nombre:"Alai Sosa",ci:"7632696",edad:11},{nombre:"Jade Medina",ci:"7649749",edad:11}],duracion:"03:15",tipo_musica:"mp3"},
+    {id:"P3",obra:"Fuego Interior",academia:"Academia de Danzas GlauDance",modalidad:"Jazz",categoria:"junior",tipo_part:"grupo",participantes:[{nombre:"Agustina Arrua",ci:"6540300",edad:14},{nombre:"Dulce Acosta",ci:"6933748",edad:14},{nombre:"Gala Gebhardt",ci:"8500250",edad:14}],duracion:"04:00",tipo_musica:"vivo"},
+    {id:"P4",obra:"Primavera",academia:"Estudio Nicole Dijkhuis",modalidad:"Ballet Clásico Libre",categoria:"kids2",tipo_part:"solista",participantes:[{nombre:"Chiara Ferrari",ci:"7539656",edad:12}],duracion:"02:45",tipo_musica:"mp3"},
+    {id:"P5",obra:"Tierra",academia:"Escuela de Danzas Marisol Valdez",modalidad:"Danza Paraguaya",categoria:"teens",tipo_part:"grupo",participantes:[{nombre:"Alai Sosa",ci:"7632696",edad:11},{nombre:"Candela Mereles",ci:"8474902",edad:8}],duracion:"03:30",tipo_musica:"mp3"},
+    {id:"P6",obra:"Cielo",academia:"Estudio Nicole Dijkhuis",modalidad:"Neoclásico",categoria:"junior",tipo_part:"solista",participantes:[{nombre:"Chiara Ferrari",ci:"7539656",edad:12}],duracion:"02:00",tipo_musica:"mp3"},
+  ];
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────
+const TIPO_ORD = ["solista","duo","trio","cuarteto","grupo","gran_grupo"];
+const TIPO_LBL = {solista:"Solista",duo:"Dúo",trio:"Trío",cuarteto:"Cuarteto",grupo:"Grupo (5-10)",gran_grupo:"Gran Grupo (+10)"};
+
+function renderDashboard(){
+  const totPart=DATA.reduce((s,d)=>s+(d.participantes||[]).length,0);
+  const acads=[...new Set(DATA.map(d=>d.academia||d.inst_nombre).filter(Boolean))];
+  const vivo=DATA.filter(d=>d.tipo_musica==="vivo").length;
+
+  const porCat={}, porMod={}, porTipo={};
+  DATA.forEach(d=>{
+    const c=d.categoria||"—";
+    if(!porCat[c]) porCat[c]={i:0,p:0};
+    porCat[c].i++; porCat[c].p+=(d.participantes||[]).length;
+    const m=d.modalidad||"—";
+    if(!porMod[m]) porMod[m]={i:0,p:0};
+    porMod[m].i++; porMod[m].p+=(d.participantes||[]).length;
+    const t=d.tipo_part||"—";
+    if(!porTipo[t]) porTipo[t]={i:0,p:0};
+    porTipo[t].i++; porTipo[t].p+=(d.participantes||[]).length;
+  });
+
+  const acadMap={};
+  DATA.forEach(d=>{
+    const a=d.academia||d.inst_nombre||"Sin academia";
+    if(!acadMap[a]) acadMap[a]={i:0,p:0};
+    acadMap[a].i++; acadMap[a].p+=(d.participantes||[]).length;
+  });
+
+  const acadBtns=Object.entries(acadMap).sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([a,v])=>`<button class="acad-btn" onclick="abrirAcademia('${a.replace(/'/g,"\\'")}')"><div class="acad-name">${a}</div><div class="acad-num">${v.i} inscripciones · ${v.p} participantes</div></button>`).join("");
+
+  const catRows=CAT_ORD.filter(c=>porCat[c]).map(c=>`<tr><td><span class="badge b-cat">${CAT_LBL[c]}</span></td><td>${porCat[c].i}</td><td>${porCat[c].p}</td></tr>`).join("");
+  const modRows=Object.entries(porMod).sort((a,b)=>b[1].i-a[1].i).map(([m,v])=>`<tr><td><span class="badge b-mod">${m}</span></td><td>${v.i}</td><td>${v.p}</td></tr>`).join("");
+  const tipoRows=TIPO_ORD.filter(t=>porTipo[t]).map(t=>`<tr><td><span class="badge b-tipo">${TIPO_LBL[t]||t}</span></td><td>${porTipo[t].i}</td><td>${porTipo[t].p}</td></tr>`).join("");
+
+  document.getElementById("panel-dashboard").innerHTML=`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+      <button class="btn-sec" onclick="cargarDatos()">🔄 Actualizar</button>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="num">${DATA.length}</div><div class="lbl">Inscripciones</div></div>
+      <div class="stat-card"><div class="num">${totPart}</div><div class="lbl">Participantes</div></div>
+      <div class="stat-card"><div class="num">${acads.length}</div><div class="lbl">Academias</div></div>
+      <div class="stat-card"><div class="num">${vivo}</div><div class="lbl">Música en vivo</div></div>
+    </div>
+    <div class="sec-title">🩰 Por tipo de participación</div>
+    <div class="tbl-wrap"><table><tr><th>Tipo</th><th>Inscripciones</th><th>Participantes</th></tr>${tipoRows}</table></div>
+    <div class="sec-title">📊 Por categoría</div>
+    <div class="tbl-wrap"><table><tr><th>Categoría</th><th>Inscripciones</th><th>Participantes</th></tr>${catRows}</table></div>
+    <div class="sec-title">💃 Por modalidad</div>
+    <div class="tbl-wrap"><table><tr><th>Modalidad</th><th>Inscripciones</th><th>Participantes</th></tr>${modRows}</table></div>
+    <div class="sec-title">🏫 Por academia
+      <button class="btn-pdf" style="margin-left:auto" onclick="window.print()">⬇ PDF General</button>
+    </div>
+    <div class="acad-grid">${acadBtns}</div>`;
+}
+
+// ─── MODAL ACADEMIA ───────────────────────────────────────
+let modalAcad=null;
+function abrirAcademia(a){
+  modalAcad=a;
+  const insc=DATA.filter(d=>(d.academia||d.inst_nombre)===a);
+  const totP=insc.reduce((s,d)=>s+(d.participantes||[]).length,0);
+  const rows=insc.map(d=>`
+    <tr><td>${d.obra||"—"}</td>
+    <td><span class="badge b-mod" style="font-size:.68rem">${(d.modalidad||"—").substring(0,20)}</span></td>
+    <td><span class="badge b-cat">${CAT_LBL[d.categoria]||d.categoria||"—"}</span></td>
+    <td>${d.tipo_part||"—"}</td>
+    <td>${(d.participantes||[]).length}</td>
+    <td>${d.duracion||"—"}</td></tr>`).join("");
+  document.getElementById("modal-title").textContent="🏫 "+a;
+  document.getElementById("modal-body").innerHTML=`
+    <p style="font-size:.82rem;color:#888;margin-bottom:.75rem">${insc.length} coreografías · ${totP} participantes</p>
+    <div class="tbl-wrap"><table>
+      <tr><th>Obra</th><th>Modalidad</th><th>Categoría</th><th>Tipo</th><th>Part.</th><th>Duración</th></tr>
+      ${rows}
+    </table></div>`;
+  document.getElementById("modal-acad").classList.add("open");
+  log("Consultó academia: "+a);
+}
+function cerrarModal(){document.getElementById("modal-acad").classList.remove("open");}
+
+// ─── ORDEN TENTATIVO (por bloques) ────────────────────────
+// ── CONFIGURACIÓN DE BLOQUEO DE MÚSICA (portal de academias) ───
+async function cargarConfigMusica(){
+  try{
+    const r = await fetch(SCRIPT_URL+'?accion=getConfigMusica');
+    const json = await r.json();
+    document.getElementById('cfg-fecha-limite').value = json.fechaLimite || '';
+    document.getElementById('cfg-bloqueo-manual').checked = !!json.bloqueadaManual;
+    document.getElementById('cfg-musica-estado').textContent = json.bloqueada ? '🔴 Actualmente BLOQUEADO' : '🟢 Actualmente habilitado';
+  }catch(e){
+    document.getElementById('cfg-musica-estado').textContent = 'Error al cargar configuración';
+  }
+}
+
+async function guardarConfigMusica(){
+  const fechaLimite = document.getElementById('cfg-fecha-limite').value;
+  const bloqueadaManual = document.getElementById('cfg-bloqueo-manual').checked;
+  try{
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'setConfigMusica', fechaLimite, bloqueadaManual}));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+    alert('Configuración guardada.');
+    cargarConfigMusica();
+    log('Actualizó configuración de bloqueo de música');
+  }catch(err){
+    alert('Error: '+err.message);
+  }
+}
+
+// ── CONFIGURACIÓN DEL PORTAL PÚBLICO DE ORDEN DE PARTICIPACIÓN ──
+async function cargarConfigOrdenPublico(){
+  try{
+    const r = await fetch(SCRIPT_URL+'?accion=getConfigOrdenPublico&_='+Date.now());
+    const json = await r.json();
+    const c = json.config || {};
+    document.getElementById('cfg-pub-jue').checked = !!c.jue;
+    document.getElementById('cfg-pub-vie').checked = !!c.vie;
+    document.getElementById('cfg-pub-sab').checked = !!c.sab;
+    document.getElementById('cfg-pub-dom').checked = !!c.dom;
+    document.getElementById('cfg-pub-estado').textContent = '';
+  }catch(e){
+    document.getElementById('cfg-pub-estado').textContent = 'Error al cargar configuración';
+  }
+}
+
+async function guardarConfigOrdenPublico(){
+  const datos = {
+    accion: 'setConfigOrdenPublico',
+    jue: document.getElementById('cfg-pub-jue').checked,
+    vie: document.getElementById('cfg-pub-vie').checked,
+    sab: document.getElementById('cfg-pub-sab').checked,
+    dom: document.getElementById('cfg-pub-dom').checked
+  };
+  try{
+    const fd = new FormData();
+    fd.append('data', JSON.stringify(datos));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+    document.getElementById('cfg-pub-estado').textContent = '✅ Guardado';
+    log('Actualizó qué días de Orden de Participación están públicos');
+  }catch(err){
+    alert('Error: '+err.message);
+  }
+}
+
+async function abrirOrdenTentativo(){
+  await cargarOrdenGuardado();
+  await cargarConfigOrdenPublico();
+  ORDEN = {}; // limpiar caché en memoria para que tome el orden recién cargado
+  renderOrden();
+}
+
+function setDia(d){
+  DIA=d;
+  document.querySelectorAll(".btn-dia").forEach(b=>b.classList.remove("active"));
+  document.getElementById("bd-"+d).classList.add("active");
+  renderOrden();
+}
+
+function bloqueDeObra(dia, obra){
+  const bloques = BLOQUES[dia] || [];
+  const cat = (obra.categoria||"").toString().trim().toLowerCase();
+  // Prioridad: segmento Baby/Mini (siempre, sin importar la modalidad)
+  if(cat==="baby" || cat==="mini"){
+    const catchAll = bloques.find(b=>b.catchAll==="baby_mini");
+    if(catchAll) return catchAll;
+  }
+  for(const b of bloques){
+    if(b.catchAll) continue;
+    const modOk = !b.modalidades || b.modalidades.some(m=>(obra.modalidad||"").toLowerCase().includes(m.toLowerCase()));
+    const catOk = !b.categorias || b.categorias.includes(cat);
+    if(modOk && catOk) return b;
+  }
+  return null;
+}
+
+let ORDEN_GUARDADO = {};
+
+async function cargarOrdenGuardado(){
+  try{
+    const r = await fetch(SCRIPT_URL+"?accion=getOrdenTentativo&_="+Date.now());
+    const json = await r.json();
+    ORDEN_GUARDADO = {};
+    (json.orden||[]).forEach(fila=>{
+      if(!ORDEN_GUARDADO[fila.dia]) ORDEN_GUARDADO[fila.dia] = {};
+      if(!ORDEN_GUARDADO[fila.dia][fila.bloque]) ORDEN_GUARDADO[fila.dia][fila.bloque] = [];
+      ORDEN_GUARDADO[fila.dia][fila.bloque][fila.posicion-1] = fila.id;
+    });
+    // Limpiar huecos por si acaso
+    Object.keys(ORDEN_GUARDADO).forEach(dia=>{
+      Object.keys(ORDEN_GUARDADO[dia]).forEach(bl=>{
+        ORDEN_GUARDADO[dia][bl] = ORDEN_GUARDADO[dia][bl].filter(Boolean);
+      });
+    });
+  }catch(e){
+    ORDEN_GUARDADO = {};
+  }
+}
+
+async function guardarOrdenEnSheet(dia, bloqueNombre, ids){
+  try{
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'guardarOrdenTentativo', dia, bloque: bloqueNombre, ids}));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+  }catch(e){
+    console.log('No se pudo guardar el orden en el Sheet', e);
+  }
+}
+
+async function generarHojaLegible(dia){
+  if(!ORDEN[dia]) return;
+  let numero = 1;
+  const items = [];
+  ORDEN[dia].forEach(grupo=>{
+    const jurado = (grupo.bloque.jurado && grupo.bloque.jurado.length) ? grupo.bloque.jurado.join(" · ") : "A confirmar";
+    grupo.items.forEach(d=>{
+      items.push({
+        numero: numero++,
+        bloque: grupo.bloque.nombre,
+        obra: d.obra||"",
+        academia: d.academia||d.inst_nombre||"",
+        modalidad: d.modalidad||"",
+        categoria: CAT_LBL[d.categoria]||d.categoria||"",
+        tipo: TIPO_LBL[d.tipo_part]||d.tipo_part||"",
+        participantes: (d.participantes||[]).map(p=>p.nombre).join(", "),
+        duracion: d.duracion||"",
+        jurado,
+        coreografo: d.coreografo||"",
+        id: d.id||""
+      });
+    });
+  });
+  try{
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'guardarOrdenLegible', dia, diaLabel: DIAS[dia].label, items}));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+  }catch(e){
+    console.log('No se pudo generar la hoja legible', e);
+  }
+}
+
+async function actualizarHojaLegible(){
+  const btn = document.getElementById('btn-hoja-legible');
+  const txtOriginal = btn.textContent;
+  btn.textContent = '⏳ Generando...';
+  btn.disabled = true;
+  if(!ORDEN[DIA]) ORDEN[DIA] = generarOrdenDia(DIA);
+  await generarHojaLegible(DIA);
+  btn.textContent = '✅ Listo';
+  setTimeout(()=>{ btn.textContent = txtOriginal; btn.disabled = false; }, 1500);
+  log('Actualizó la hoja legible del Sheet para '+DIAS[DIA].label);
+}
+
+async function actualizarTodasLasHojas(){
+  const btn = document.getElementById('btn-hojas-todas');
+  const txtOriginal = btn.textContent;
+  btn.disabled = true;
+  for(const dia of Object.keys(DIAS)){
+    btn.textContent = '⏳ Generando '+DIAS[dia].label+'...';
+    if(!ORDEN[dia]) ORDEN[dia] = generarOrdenDia(dia);
+    await generarHojaLegible(dia);
+  }
+  btn.textContent = '✅ Los 4 días listos';
+  setTimeout(()=>{ btn.textContent = txtOriginal; btn.disabled = false; }, 2000);
+  log('Actualizó las hojas legibles de los 4 días');
+}
+
+async function vincularOrdenDelSheet(){
+  if(!confirm('Esto NO va a cambiar el orden de las filas que ya tenés en la hoja "Orden — '+DIAS[DIA].label+'". Solo va a completar la columna de ID para que el panel pueda leer ese orden. ¿Continuar?')) return;
+  const btn = document.getElementById('btn-vincular-sheet');
+  const txtOriginal = btn.textContent;
+  btn.textContent = '⏳ Vinculando...';
+  btn.disabled = true;
+  try{
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'migrarOrdenLegible', dia: DIA, diaLabel: DIAS[DIA].label}));
+    const resp = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+    const json = await resp.json().catch(()=>({ok:false,error:'Sin respuesta del servidor'}));
+    if(json.ok){
+      alert('Listo.\n\nFilas vinculadas: '+json.coincididos+'\nSin encontrar coincidencia: '+json.sinMatch+'\nAmbiguas (más de una posible, no se tocaron): '+json.ambiguos+'\n\nAhora salí de esta pestaña y volvé a entrar a Orden Tentativo para ver el orden del Sheet reflejado acá.');
+      log('Vinculó el orden del Sheet para '+DIAS[DIA].label);
+    } else {
+      alert('Error: '+(json.error||'desconocido'));
+    }
+  }catch(e){
+    alert('Error de conexión: '+e.message);
+  }
+  btn.textContent = txtOriginal;
+  btn.disabled = false;
+}
+
+function generarOrdenDia(dia){
+  const bloques = BLOQUES[dia] || [];
+  const tipoOrd=["solista","duo","trio","cuarteto","grupo","gran_grupo"];
+
+  return bloques.map(bloque=>{
+    let items = DATA.filter(d => bloqueDeObra(dia, d) === bloque);
+
+    items.sort((a,b)=>{
+      const mi=(a.modalidad||"").localeCompare(b.modalidad||"");
+      if(mi!==0) return mi;
+      const ci=CAT_ORD.indexOf(a.categoria)-CAT_ORD.indexOf(b.categoria);
+      if(ci!==0) return ci;
+      return tipoOrd.indexOf(a.tipo_part)-tipoOrd.indexOf(b.tipo_part);
+    });
+
+    // Regla de 5 presentaciones entre el mismo bailarín (dentro del bloque)
+    const result=[], lastPos={}, pending=[...items];
+    let tries=0;
+    while(pending.length>0 && tries<2000){
+      tries++;
+      let added=false;
+      for(let i=0;i<pending.length;i++){
+        const item=pending[i];
+        const cis=(item.participantes||[]).map(p=>p.ci).filter(Boolean);
+        const ok=cis.every(ci=>lastPos[ci]===undefined||(result.length-lastPos[ci])>=5);
+        if(ok){
+          result.push(item);
+          cis.forEach(ci=>lastPos[ci]=result.length-1);
+          pending.splice(i,1);
+          added=true; break;
+        }
+      }
+      if(!added){
+        const item=pending.shift();
+        result.push(item);
+        (item.participantes||[]).map(p=>p.ci).filter(Boolean).forEach(ci=>lastPos[ci]=result.length-1);
+      }
+    }
+    // Si hay un orden guardado en el Sheet para este bloque, respetarlo
+    const guardado = (ORDEN_GUARDADO[dia] && ORDEN_GUARDADO[dia][bloque.nombre]) || null;
+    let finalItems = result;
+    if (guardado && guardado.length) {
+      const porId = {};
+      result.forEach(it => { porId[it.id] = it; });
+      const idsGuardados = new Set(guardado);
+      const ordenados = guardado.map(id => porId[id]).filter(Boolean);
+      const nuevos = result.filter(it => !idsGuardados.has(it.id)); // obras nuevas que todavía no estaban guardadas
+      finalItems = [...ordenados, ...nuevos];
+    }
+
+    return { bloque, items: finalItems };
+  });
+}
+
+function renderOrden(){
+  if(!ORDEN[DIA]) ORDEN[DIA]=generarOrdenDia(DIA);
+  const grupos = ORDEN[DIA];
+  document.getElementById("drag-info").style.display=EDICION?"block":"none";
+
+  const wrap = document.getElementById("tbl-orden-wrap");
+  wrap.innerHTML = "";
+  let totalSegDia = 0;
+  let numeroGlobal = 0;
+
+  grupos.forEach((grupo, bIdx)=>{
+    let totalSeg=0;
+    grupo.items.forEach(d=>{
+      const [m,s]=(d.duracion||"0:00").split(":").map(Number);
+      totalSeg+=(m*60+(s||0))+15;
+    });
+    totalSegDia += totalSeg;
+    const hh=Math.floor(totalSeg/3600), mm=Math.floor((totalSeg%3600)/60);
+
+    const jurado = (grupo.bloque.jurado && grupo.bloque.jurado.length)
+      ? "👨‍⚖️ Jurado: " + grupo.bloque.jurado.join(" · ")
+      : "👨‍⚖️ Jurado a confirmar";
+
+    const bloqueDiv = document.createElement("div");
+    bloqueDiv.className = "bloque-wrap";
+    bloqueDiv.innerHTML = `
+      <div class="bloque-header">
+        <span class="bloque-nombre">${grupo.bloque.nombre}</span>
+        <span class="bloque-jurado">${jurado}</span>
+        <span class="bloque-tiempo">⏱ ${hh}h ${mm}min · ${grupo.items.length} obras</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <tr><th></th><th>#</th><th>Obra</th><th>Academia</th><th>Modalidad</th><th>Categoría</th><th>Tipo</th><th>Participantes</th><th>Duración</th><th>Música</th></tr>
+        </table>
+      </div>`;
+    wrap.appendChild(bloqueDiv);
+
+    const tbl = bloqueDiv.querySelector("table");
+
+    if(!grupo.items.length){
+      const tr=document.createElement("tr");
+      tr.innerHTML = `<td colspan="10" style="text-align:center;color:#aaa;padding:1rem">Sin obras asignadas a este bloque todavía</td>`;
+      tbl.appendChild(tr);
+      return;
+    }
+
+    grupo.items.forEach((d,i)=>{
+      numeroGlobal++;
+      const tr=document.createElement("tr");
+      if(EDICION){
+        tr.setAttribute("draggable","true");
+        tr.addEventListener("dragstart",()=>{DRAG_IDX=i; DRAG_BLOQUE=bIdx;});
+        tr.addEventListener("dragover",e=>e.preventDefault());
+        tr.addEventListener("drop",()=>{
+          if(DRAG_IDX===null || DRAG_BLOQUE!==bIdx || DRAG_IDX===i) return;
+          const arr=ORDEN[DIA][bIdx].items;
+          arr.splice(i,0,arr.splice(DRAG_IDX,1)[0]);
+          DRAG_IDX=null; DRAG_BLOQUE=null;
+          renderOrden();
+          log("Reordenó "+grupo.bloque.nombre+" ("+DIA+")");
+          generarHojaLegible(DIA);
+        });
+      }
+      const musica=d.tipo_musica==="vivo"
+        ?'<span class="badge b-vivo">🎼 En vivo</span>'
+        :(d.musica_url?`<a class="musica-link" href="${d.musica_url}" target="_blank">⬇ MP3</a>`:'<span class="badge b-mp3">MP3</span>');
+      tr.innerHTML=`
+        <td>${EDICION?'<span class="drag-handle">⠿</span>':''}</td>
+        <td style="font-weight:700;color:var(--p)">${numeroGlobal}</td>
+        <td>${d.obra||"—"}</td>
+        <td style="font-size:.75rem">${(d.academia||d.inst_nombre||"—").substring(0,28)}</td>
+        <td><span class="badge b-mod" style="font-size:.68rem">${(d.modalidad||"—").substring(0,16)}</span></td>
+        <td><span class="badge b-cat">${CAT_LBL[d.categoria]||d.categoria||"—"}</span></td>
+        <td><span class="badge b-tipo">${d.tipo_part||"—"}</span></td>
+        <td style="font-size:.75rem;white-space:normal;max-width:200px;line-height:1.4">${(d.participantes||[]).map(p=>p.nombre).join(", ")}</td>
+        <td>${d.duracion||"—"}</td>
+        <td>${musica}</td>`;
+      tbl.appendChild(tr);
+    });
+  });
+
+  const hhD=Math.floor(totalSegDia/3600), mmD=Math.floor((totalSegDia%3600)/60);
+  document.getElementById("tiempo-chip").textContent=`⏱ ${DIAS[DIA].label}: ${hhD}h ${mmD}min total`;
+}
+
+function toggleEdicion(){
+  EDICION=!EDICION;
+  document.getElementById("btn-edicion").textContent=EDICION?"🔒 Deshabilitar edición":"🔓 Habilitar edición";
+  document.getElementById("btn-edicion").style.background=EDICION?"#DC2626":"var(--p)";
+  log(EDICION?"Habilitó edición de orden":"Deshabilitó edición de orden");
+  renderOrden();
+}
+
+// ─── PULSERAS ─────────────────────────────────────────────
+function renderPulseras(){
+  const map={};
+  DATA.forEach(d=>{
+    const a=d.academia||d.inst_nombre||"Sin academia";
+    if(!map[a]) map[a]=new Set();
+    (d.participantes||[]).forEach(p=>map[a].add(p.ci||p.nombre));
+  });
+  const tbl=document.getElementById("tbl-pulseras");
+  tbl.innerHTML=`<tr><th>Academia</th><th style="text-align:center">Participantes únicos</th><th style="text-align:center">Pulseras</th><th style="text-align:center">Certificados</th></tr>`;
+  let totP=0;
+  Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([a,s])=>{
+    const n=s.size; totP+=n;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${a}</td><td style="text-align:center;font-weight:700;color:var(--p)">${n}</td><td style="text-align:center">${n}</td><td style="text-align:center">${n}</td>`;
+    tbl.appendChild(tr);
+  });
+  const foot=document.createElement("tr");
+  foot.innerHTML=`<td style="font-weight:700">TOTAL</td><td style="text-align:center;font-weight:700;color:var(--pd)">${totP}</td><td style="text-align:center;font-weight:700">${totP}</td><td style="text-align:center;font-weight:700">${totP}</td>`;
+  foot.style.background="#EDE9FE";
+  tbl.appendChild(foot);
+
+  renderProfesoresUnicos();
+  renderDirectoresUnicos();
+}
+
+function renderProfesoresUnicos(){
+  const mapa={};
+  DATA.forEach(d=>{
+    const academia=d.academia||d.inst_nombre||"Sin academia";
+    [d.coreografo, d.preparador].forEach(nombre=>{
+      const limpio=(nombre||"").toString().trim();
+      if(!limpio) return;
+      const key=limpio.toLowerCase();
+      if(!mapa[key]) mapa[key]={nombre:limpio, academias:new Set()};
+      mapa[key].academias.add(academia);
+    });
+  });
+  const tbl=document.getElementById("tbl-profesores");
+  tbl.innerHTML=`<tr><th>Profesor/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>`;
+  const lista=Object.values(mapa).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  lista.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${p.nombre}</td><td style="font-size:.78rem;color:#888">${[...p.academias].join(", ")}</td><td style="text-align:center;font-weight:700;color:var(--p)">1</td>`;
+    tbl.appendChild(tr);
+  });
+  const foot=document.createElement("tr");
+  foot.innerHTML=`<td style="font-weight:700" colspan="2">TOTAL PROFESORES ÚNICOS</td><td style="text-align:center;font-weight:700;color:var(--pd)">${lista.length}</td>`;
+  foot.style.background="#EDE9FE";
+  tbl.appendChild(foot);
+}
+
+function renderDirectoresUnicos(){
+  const mapa={};
+  DATA.forEach(d=>{
+    const academia=d.academia||d.inst_nombre||"Sin academia";
+    const limpio=(d.director||"").toString().trim();
+    if(!limpio) return;
+    const key=limpio.toLowerCase();
+    if(!mapa[key]) mapa[key]={nombre:limpio, academias:new Set()};
+    mapa[key].academias.add(academia);
+  });
+  const tbl=document.getElementById("tbl-directores");
+  tbl.innerHTML=`<tr><th>Director/a</th><th>Academias</th><th style="text-align:center">Pulseras</th></tr>`;
+  const lista=Object.values(mapa).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  lista.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${p.nombre}</td><td style="font-size:.78rem;color:#888">${[...p.academias].join(", ")}</td><td style="text-align:center;font-weight:700;color:var(--p)">1</td>`;
+    tbl.appendChild(tr);
+  });
+  const foot=document.createElement("tr");
+  foot.innerHTML=`<td style="font-weight:700" colspan="2">TOTAL DIRECTORES ÚNICOS</td><td style="text-align:center;font-weight:700;color:var(--pd)">${lista.length}</td>`;
+  foot.style.background="#EDE9FE";
+  tbl.appendChild(foot);
+}
+
+// ─── LOG ──────────────────────────────────────────────────
+function log(accion){
+  if(!ME) return;
+  LOG.unshift({f:new Date().toLocaleString("es-PY"),u:ME.nombre,a:accion});
+}
+async function cargarActividad(){
+  const tbl=document.getElementById("tbl-log");
+  tbl.innerHTML=`<tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr><tr><td colspan="3" style="text-align:center;color:#aaa;padding:1rem">Cargando...</td></tr>`;
+
+  let servidor=[];
+  try{
+    const r=await fetch(SCRIPT_URL+"?accion=getActividad");
+    const json=await r.json();
+    servidor=(json.actividad||[]).map(e=>({
+      f:e.fecha,
+      u:e.tipo,
+      a:(e.estado==="OK"?"✅ ":"❌ ")+e.detalle
+    }));
+  }catch(e){}
+
+  const combinado=[...LOG,...servidor];
+  tbl.innerHTML=`<tr><th>Fecha y Hora</th><th>Usuario</th><th>Acción</th></tr>`;
+  combinado.forEach(e=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${e.f}</td><td>${e.u}</td><td>${e.a}</td>`;
+    tbl.appendChild(tr);
+  });
+}
+
+
+// ── ROL Y ACCESO ───────────────────────────────────────────
+function aplicarRol(rol) {
+  const adminEls = document.querySelectorAll('.admin-only');
+  const tabFinanzas = document.getElementById('tab-finanzas');
+  if (rol === 'finanzas') {
+    // Ocultar tabs admin
+    adminEls.forEach(el => el.style.display = 'none');
+    // Ir directo a finanzas
+    goTab('finanzas');
+  } else if (rol === 'sin_finanzas') {
+    adminEls.forEach(el => el.style.display = '');
+    if (tabFinanzas) tabFinanzas.style.display = 'none';
+  } else {
+    adminEls.forEach(el => el.style.display = '');
+    if (tabFinanzas) tabFinanzas.style.display = '';
+  }
+}
+
+// ── FINANZAS ───────────────────────────────────────────────
+let finData = [];
+let finDataFiltrada = [];
+let CURRENT_DETALLE_ACADEMIA = null;
+
+async function cargarFinanzas() {
+  document.getElementById('fin-tabla').innerHTML = '<div class="loading"><span class="sp"></span> Cargando...</div>';
+  document.getElementById('fin-stats').innerHTML = '';
+  document.getElementById('fin-detalle-card').style.display = 'none';
+  await cargarAjustesLlamado();
+  await cargarAjustesBeca();
+
+  try {
+    const resp = await fetch(SCRIPT_URL + '?accion=getInscripciones');
+    const data = await resp.json();
+    const inscripciones = data.inscripciones || [];
+
+    // Agrupar por academia
+    const mapaAc = {};
+    inscripciones.forEach(ins => {
+      const ac = ins.inst_nombre || ins.institucion || 'Sin Academia';
+      if (!mapaAc[ac]) mapaAc[ac] = [];
+      mapaAc[ac].push(ins);
+    });
+
+    finData = Object.keys(mapaAc).sort().map(nombre => ({
+      nombre,
+      obras: mapaAc[nombre]
+    }));
+    finDataFiltrada = [...finData];
+
+    renderFinStats(inscripciones);
+    renderFinTabla(finDataFiltrada);
+  } catch(err) {
+    document.getElementById('fin-tabla').innerHTML = '<div style="color:#991B1B">Error al cargar. Intentá de nuevo.</div>';
+  }
+}
+
+function renderFinStats(inscripciones) {
+  const total    = inscripciones.reduce((s,i) => s + montoFinal(i), 0);
+  const pagadas  = inscripciones.filter(i => i.estado === 'Pago confirmado');
+  const pagado   = pagadas.reduce((s,i) => s + montoFinal(i), 0);
+  const pendiente = total - pagado;
+  const nAc      = new Set(inscripciones.map(i => i.inst_nombre || i.institucion)).size;
+
+  document.getElementById('fin-resumen-total').textContent = 
+    'Total: ' + formatGs(total) + ' · Cobrado: ' + formatGs(pagado);
+
+  document.getElementById('fin-stats').innerHTML = `
+    <div class="fin-stat"><div class="fs-num">${inscripciones.length}</div><div class="fs-lbl">Obras inscriptas</div></div>
+    <div class="fin-stat"><div class="fs-num">${nAc}</div><div class="fs-lbl">Academias</div></div>
+    <div class="fin-stat"><div class="fs-num" style="color:#16A34A">${formatGs(pagado)}</div><div class="fs-lbl">Cobrado</div></div>
+    <div class="fin-stat"><div class="fs-num" style="color:#EF4444">${formatGs(pendiente)}</div><div class="fs-lbl">Pendiente</div></div>
+    <div class="fin-stat"><div class="fs-num">${pagadas.length}</div><div class="fs-lbl">Pagaron</div></div>
+    <div class="fin-stat"><div class="fs-num" style="color:#EF4444">${inscripciones.length - pagadas.length}</div><div class="fs-lbl">Sin confirmar</div></div>
+  `;
+}
+
+function parseMonto(str) {
+  if (!str) return 0;
+  return parseInt(str.toString().replace(/[^\d]/g, '')) || 0;
+}
+
+function montoFinal(obra) {
+  const ajuste = AJUSTES_LLAMADO[obra.id];
+  const base = ajuste ? parseMonto(ajuste.costoNuevo) : parseMonto(obra.costo_total);
+  const ajusteBeca = AJUSTES_BECA[obra.id];
+  const beca = ajusteBeca ? (parseInt(ajusteBeca.beca) || 0) : 0;
+  return Math.round(base * (1 - beca/100));
+}
+
+function formatGs(n) {
+  return n.toLocaleString('es-PY') + ' Gs';
+}
+
+function renderFinTabla(lista) {
+  if (!lista.length) {
+    document.getElementById('fin-tabla').innerHTML = '<div style="color:#888;text-align:center;padding:16px">No se encontraron academias</div>';
+    return;
+  }
+
+  let html = '';
+  lista.forEach(ac => {
+    const total   = ac.obras.reduce((s,o) => s + montoFinal(o), 0);
+    const pagado  = ac.obras.filter(o => o.estado === 'Pago confirmado').reduce((s,o) => s + montoFinal(o), 0);
+    const nPag    = ac.obras.filter(o => o.estado === 'Pago confirmado').length;
+    let badge;
+    if (nPag === ac.obras.length)        badge = '<span class="badge-pagado">✅ Todo pagado</span>';
+    else if (nPag > 0)                   badge = '<span class="badge-parcial">⚠️ Parcial</span>';
+    else                                 badge = '<span class="badge-pendiente-fin">❌ Sin pagar</span>';
+
+    html += `<div class="fin-academia-row" onclick="verDetalleAcademia('${escHtml(ac.nombre)}')">
+      <div class="fin-ac-nombre">${escHtml(ac.nombre)}</div>
+      <div class="fin-ac-obras">${nPag}/${ac.obras.length} obras</div>
+      <div class="fin-ac-estado">${badge}</div>
+      <div class="fin-ac-deuda">${formatGs(total - pagado)}</div>
+    </div>`;
+  });
+
+  document.getElementById('fin-tabla').innerHTML = html;
+}
+
+function filtrarFinanzas() {
+  const q = document.getElementById('fin-buscar').value.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'');
+  finDataFiltrada = finData.filter(a =>
+    a.nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q)
+  );
+  renderFinTabla(finDataFiltrada);
+}
+
+function verDetalleAcademia(nombre) {
+  const ac = finData.find(a => a.nombre === nombre);
+  if (!ac) return;
+
+  CURRENT_DETALLE_ACADEMIA = nombre;
+  document.getElementById('fin-detalle-titulo').textContent = '🏫 ' + nombre;
+  document.getElementById('fin-detalle-card').style.display = 'block';
+  document.getElementById('fin-detalle-card').scrollIntoView({behavior:'smooth', block:'start'});
+
+  const total  = ac.obras.reduce((s,o) => s + montoFinal(o), 0);
+  const pagado = ac.obras.filter(o => o.estado === 'Pago confirmado').reduce((s,o) => s + montoFinal(o), 0);
+
+  let html = '';
+  ac.obras.forEach(obra => {
+    const pagada    = obra.estado === 'Pago confirmado';
+    const montoBase = parseMonto(obra.costo_total);
+    const ajusteBeca = AJUSTES_BECA[obra.id];
+    const beca      = ajusteBeca ? (parseInt(ajusteBeca.beca) || 0) : 0;
+    const ajusteLlamado = AJUSTES_LLAMADO[obra.id];
+    const monto     = montoFinal(obra);
+    const cantReal = (obra.participantes && obra.participantes.length) ? obra.participantes.length : (obra.cant_part || 0);
+    const tipoLbl  = TIPO_LBL[obra.tipo_part] || obra.tipo_part || '—';
+    const coreoLbl = (obra.compite_coreo||'').toString().trim().toLowerCase() === 'si' ? 'Sí' : 'No';
+    const compLink = obra.comp_drive_url
+      ? `<a class="comp-link" href="${obra.comp_drive_url}" target="_blank">📎 Ver comprobante</a>` : '';
+    const facturaLink = obra.factura_drive_url
+      ? `<a class="comp-link" href="${obra.factura_drive_url}" target="_blank">🧾 Ver factura</a>` : '';
+    const tieneAjuste = beca > 0 || !!ajusteLlamado;
+    const montoHtml = tieneAjuste
+      ? `<div class="obra-fin-monto"><span style="text-decoration:line-through;color:#aaa;font-size:.78rem;font-weight:400">${formatGs(montoBase)}</span><br>${formatGs(monto)}${ajusteLlamado?` <span style="font-size:.68rem;background:#EDE9FE;color:#6B21A8;padding:1px 6px;border-radius:99px">${ajusteLlamado.llamado==='primero'?'1er':'2do'} llamado</span>`:''}${beca>0?` <span style="font-size:.68rem;background:#DCFCE7;color:#16A34A;padding:1px 6px;border-radius:99px">Beca ${beca}%</span>`:''}</div>`
+      : `<div class="obra-fin-monto">${formatGs(monto)}</div>`;
+    html += `<div class="obra-fin-row">
+      <div class="obra-fin-top">
+        <div>
+          <div class="obra-fin-nombre">${escHtml(obra.obra || 'Sin nombre')}</div>
+          <div class="obra-fin-meta">${escHtml(obra.modalidad||'')} · ${escHtml(obra.categoria||'')} · ID: ${escHtml(obra.id||'')}</div>
+          <div class="obra-fin-meta">👥 ${cantReal} participante(s) · 🩰 ${escHtml(tipoLbl)} · 🎼 Compite por coreografía: <strong>${coreoLbl}</strong></div>
+          <div class="obra-fin-meta">Forma de pago: <strong>${escHtml(obra.forma_pago||'—')}</strong></div>
+        </div>
+        ${montoHtml}
+      </div>
+      <div class="obra-fin-acciones">
+        ${pagada
+          ? `<button class="btn-ok ya-pago" disabled>✅ Pago confirmado</button>
+             <button class="btn-pendiente" onclick="cambiarEstado('${escHtml(obra.id)}','pendiente','${escHtml(nombre)}')">↩ Marcar pendiente</button>`
+          : `<button class="btn-ok" onclick="cambiarEstado('${escHtml(obra.id)}','pagado','${escHtml(nombre)}')">✅ Confirmar pago</button>`
+        }
+        ${compLink}
+        <label class="btn-upload-comp" style="cursor:pointer">
+          📎 Subir comprobante
+          <input type="file" accept="image/*,.pdf" style="display:none" onchange="subirComprobanteAdmin(this,'${escHtml(obra.id)}','${escHtml(obra.obra)}','${escHtml(nombre)}')"/>
+        </label>
+        ${facturaLink}
+        <label class="btn-upload-comp" style="cursor:pointer;background:#B45309">
+          🧾 Cargar factura
+          <input type="file" accept="image/*,.pdf" style="display:none" onchange="subirFacturaAdmin(this,'${escHtml(obra.id)}','${escHtml(obra.obra)}','${escHtml(nombre)}')"/>
+        </label>
+      </div>
+      <div class="obra-fin-acciones" style="margin-top:.4rem;padding-top:.4rem;border-top:1px dashed #EDE9FE">
+        <span style="font-size:.72rem;color:#888;font-weight:600">🎓 Beca:</span>
+        <button class="btn-sm" style="${beca===50?'background:#6B21A8;color:#fff':''}" onclick="aplicarBeca('${escHtml(obra.id)}',50,'${escHtml(nombre)}')">50%</button>
+        <button class="btn-sm" style="${beca===100?'background:#6B21A8;color:#fff':''}" onclick="aplicarBeca('${escHtml(obra.id)}',100,'${escHtml(nombre)}')">100%</button>
+        ${beca>0 ? `<button class="btn-sm" onclick="aplicarBeca('${escHtml(obra.id)}',0,'${escHtml(nombre)}')">✕ Quitar beca</button>` : ''}
+      </div>
+      <div class="obra-fin-acciones" style="margin-top:.4rem;padding-top:.4rem;border-top:1px dashed #EDE9FE">
+        <span style="font-size:.72rem;color:#888;font-weight:600">📅 Llamado:</span>
+        <button class="btn-sm" style="${ajusteLlamado && ajusteLlamado.llamado==='primero' ? 'background:#6B21A8;color:#fff' : ''}" onclick="aplicarLlamadoNuevo('${escHtml(obra.id)}','primero','${escHtml(nombre)}')">1er llamado</button>
+        <button class="btn-sm" style="${ajusteLlamado && ajusteLlamado.llamado==='segundo' ? 'background:#6B21A8;color:#fff' : ''}" onclick="aplicarLlamadoNuevo('${escHtml(obra.id)}','segundo','${escHtml(nombre)}')">2do llamado</button>
+        ${ajusteLlamado ? `<button class="btn-sm" onclick="quitarAjusteLlamado('${escHtml(obra.id)}','${escHtml(nombre)}')">✕ Quitar ajuste</button>` : ''}
+      </div>
+    </div>`;
+  });
+
+  html += `<div class="fin-totales-row">
+    <div class="fin-total-item"><div class="label">Pagado</div><div class="valor" style="color:#16A34A">${formatGs(pagado)}</div></div>
+    <div class="fin-total-item"><div class="label">Pendiente</div><div class="valor" style="color:#EF4444">${formatGs(total-pagado)}</div></div>
+    <div class="fin-total-item"><div class="label">Total academia</div><div class="valor">${formatGs(total)}</div></div>
+  </div>`;
+
+  document.getElementById('fin-detalle-contenido').innerHTML = html;
+}
+
+function imprimirAcademia() {
+  const nombre = CURRENT_DETALLE_ACADEMIA;
+  const ac = finData.find(a => a.nombre === nombre);
+  if (!ac) return;
+
+  const total  = ac.obras.reduce((s,o) => s + parseMonto(o.costo_total), 0);
+  const pagado = ac.obras.filter(o => o.estado === 'Pago confirmado').reduce((s,o) => s + parseMonto(o.costo_total), 0);
+
+  const filas = ac.obras.map(o => `
+    <tr>
+      <td>${escHtml(o.obra || '—')}</td>
+      <td>${escHtml(o.modalidad || '—')}</td>
+      <td>${escHtml(CAT_LBL[o.categoria] || o.categoria || '—')}</td>
+      <td>${escHtml(o.tipo_part || '—')}</td>
+      <td style="text-align:right">${formatGs(parseMonto(o.costo_total))}</td>
+      <td>${o.estado === 'Pago confirmado' ? '✅ Pagado' : '❌ Pendiente'}</td>
+    </tr>`).join('');
+
+  document.getElementById('print-academia').innerHTML = `
+    <div style="font-family:'Segoe UI',Arial,sans-serif;padding:10px">
+      <h1 style="color:#3B0764;font-size:20px;margin-bottom:2px">PULSO Festival Internacional de Danza 2026</h1>
+      <h2 style="color:#6B21A8;font-size:16px;margin:0 0 4px">Tus Inscripciones — ${escHtml(nombre)}</h2>
+      <p style="color:#888;font-size:11px;margin:0 0 16px">Generado el ${new Date().toLocaleString('es-PY')}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:12px" border="1" cellpadding="6">
+        <tr style="background:#3B0764;color:#fff">
+          <th style="text-align:left">Obra</th><th style="text-align:left">Modalidad</th><th style="text-align:left">Categoría</th>
+          <th style="text-align:left">Tipo</th><th style="text-align:right">Costo</th><th style="text-align:left">Estado</th>
+        </tr>
+        ${filas}
+      </table>
+      <table style="margin-top:18px;font-size:13px">
+        <tr><td style="padding:3px 14px 3px 0">Total a pagar</td><td style="font-weight:700">${formatGs(total)}</td></tr>
+        <tr><td style="padding:3px 14px 3px 0">Pagado</td><td style="font-weight:700;color:#16A34A">${formatGs(pagado)}</td></tr>
+        <tr><td style="padding:3px 14px 3px 0">Pendiente</td><td style="font-weight:700;color:#EF4444">${formatGs(total-pagado)}</td></tr>
+      </table>
+    </div>`;
+
+  document.body.classList.add('imprimiendo');
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => document.body.classList.remove('imprimiendo'), 300);
+  }, 60);
+
+  log('Descargó PDF de: ' + nombre);
+}
+
+function cerrarDetalle() {
+  document.getElementById('fin-detalle-card').style.display = 'none';
+}
+
+async function cambiarEstado(inscId, nuevoEstado, academia) {
+  const estadoTexto = nuevoEstado === 'pagado' ? 'Pago confirmado' : 'Pendiente de pago';
+  try {
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'cambiarEstado', id:inscId, estado:estadoTexto}));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+    // Actualizar local
+    finData.forEach(ac => {
+      ac.obras.forEach(o => { if (o.id === inscId) o.estado = estadoTexto; });
+    });
+    verDetalleAcademia(academia);
+    renderFinTabla(finDataFiltrada);
+    log('Estado pago cambiado: ' + inscId + ' → ' + estadoTexto);
+  } catch(err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function aplicarBeca(inscId, beca, academia) {
+  try {
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'aplicarBeca', id:inscId, beca, usuario: ME ? ME.nombre : ''}));
+    const resp = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+    const json = await resp.json().catch(()=>({ok:false,error:'Sin respuesta'}));
+    if (!json.ok) { alert('Error: ' + (json.error||'desconocido')); return; }
+    await cargarAjustesBeca();
+    verDetalleAcademia(academia);
+    renderFinTabla(finDataFiltrada);
+    log(beca > 0 ? ('Beca aplicada: ' + inscId + ' → ' + beca + '%') : ('Beca quitada: ' + inscId));
+  } catch(err) {
+    alert('Error de conexión: ' + err.message);
+  }
+}
+
+async function subirComprobanteAdmin(input, inscId, obra, academia) {
+  if (!input.files.length) return;
+  const file = input.files[0];
+  const mb = (file.size/1024/1024).toFixed(1);
+  if (mb > 10) { alert('Archivo muy grande (' + mb + ' MB). Máximo 10 MB.'); return; }
+
+  const CHUNK = 500 * 1024;
+  const totalChunks = Math.ceil(file.size / CHUNK);
+  for (let i = 0; i < totalChunks; i++) {
+    const slice = file.slice(i*CHUNK, Math.min((i+1)*CHUNK, file.size));
+    const b64   = await fileToBase64(slice);
+    const fd    = new FormData();
+    fd.append('data', JSON.stringify({
+      accion:'subirChunk', id:inscId, tipo:'comprobante',
+      chunk:i, totalChunks, b64,
+      nombre:file.name, mimeType:file.type||'image/jpeg',
+      obra, academia
+    }));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+  }
+  alert('Comprobante subido correctamente.');
+  await cargarFinanzas();
+  verDetalleAcademia(academia);
+}
+async function subirFacturaAdmin(input, inscId, obra, academia) {
+  if (!input.files.length) return;
+  const file = input.files[0];
+  const mb = (file.size/1024/1024).toFixed(1);
+  if (mb > 10) { alert('Archivo muy grande (' + mb + ' MB). Máximo 10 MB.'); return; }
+
+  const CHUNK = 500 * 1024;
+  const totalChunks = Math.ceil(file.size / CHUNK);
+  for (let i = 0; i < totalChunks; i++) {
+    const slice = file.slice(i*CHUNK, Math.min((i+1)*CHUNK, file.size));
+    const b64   = await fileToBase64(slice);
+    const fd    = new FormData();
+    fd.append('data', JSON.stringify({
+      accion:'subirChunk', id:inscId, tipo:'factura',
+      chunk:i, totalChunks, b64,
+      nombre:file.name, mimeType:file.type||'application/pdf',
+      obra, academia
+    }));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+  }
+  alert('Factura subida correctamente.');
+  await cargarFinanzas();
+  verDetalleAcademia(academia);
+}  
+function fileToBase64(blob) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => { const c = r.result.indexOf(','); res(c>=0?r.result.substring(c+1):r.result); };
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+// ── MASTERCLASS (panel admin, agrupado por academia) ────────
+let MC_DATA = [];
+let MC_ACAD = [];
+let MC_ACAD_FILTRADA = [];
+
+async function cargarMasterClassAdmin() {
+  document.getElementById('mc-tabla').innerHTML = '<div class="loading"><span class="sp"></span> Cargando...</div>';
+  document.getElementById('mc-detalle-card').style.display = 'none';
+  await cargarAjustesBeca();
+  try {
+    const r = await fetch(SCRIPT_URL + '?accion=getInscripcionesMasterClass&_=' + Date.now());
+    const json = await r.json();
+    MC_DATA = json.data || [];
+    renderResumenMasterClass();
+    agruparMCPorAcademia();
+    renderDesglosePorCurso();
+  } catch(e) {
+    document.getElementById('mc-tabla').innerHTML = '<div style="color:#991B1B">Error al cargar. Intentá de nuevo.</div>';
+  }
+}
+
+function extraerNombresMC(texto) {
+  if (!texto) return '—';
+  const nombres = [];
+  const regex = /\d+\.\s*([^|]+)\|/g;
+  let m;
+  while ((m = regex.exec(texto.toString())) !== null) nombres.push(m[1].trim());
+  return nombres.length ? nombres.join(', ') : texto.toString();
+}
+
+function parsearParticipantesMC(texto) {
+  if (!texto) return [];
+  const participantes = [];
+  const regex = /\d+\.\s*([^|]+)\|\s*CI:\s*([^|]+)\|\s*(\d+)/g;
+  let m;
+  while ((m = regex.exec(texto.toString())) !== null) {
+    participantes.push({ nombre: m[1].trim(), ci: m[2].trim(), edad: m[3] });
+  }
+  return participantes;
+}
+
+// ── DESGLOSE POR CURSO (para pulseras, lista de asistencia y certificados) ──
+function desglosarPorCurso() {
+  const cursos = {};
+  MC_DATA.forEach(mc => {
+    const academia = mc.inst_nombre || mc.institucion || 'Sin Academia';
+    const pagado = mc.estado === 'Pago confirmado';
+    const participantes = parsearParticipantesMC(mc.participantes);
+    (mc.masterclasses || '').toString().split(',').forEach(item => {
+      const label = item.split('—')[0].trim();
+      if (!label) return;
+      if (!cursos[label]) cursos[label] = [];
+      participantes.forEach(p => {
+        cursos[label].push({ ...p, academia, pagado, id: mc.id });
+      });
+    });
+  });
+  return cursos;
+}
+
+function renderDesglosePorCurso() {
+  const cursos = desglosarPorCurso();
+  const nombres = Object.keys(cursos).sort();
+  const cont = document.getElementById('mc-desglose-cursos');
+  if (!cont) return;
+  if (!nombres.length) { cont.innerHTML = '<div style="color:#888;text-align:center;padding:16px">Todavía no hay inscripciones a MasterClass</div>'; return; }
+
+  let html = '';
+  nombres.forEach(curso => {
+    const lista = cursos[curso].sort((a,b) => a.academia.localeCompare(b.academia) || a.nombre.localeCompare(b.nombre));
+    html += `<div style="margin-bottom:1.4rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem">
+        <h4 style="color:#6B21A8;margin:0">${escHtml(curso)}</h4>
+        <span style="font-size:.72rem;background:#EDE9FE;color:#6B21A8;padding:2px 8px;border-radius:99px;font-weight:700">${lista.length} participante(s)</span>
+      </div>
+      <div class="tbl-wrap"><table>
+        <tr><th style="width:36px">#</th><th>Nombre</th><th>CI</th><th style="text-align:center">Edad</th><th>Academia</th><th>Pago</th></tr>
+        ${lista.map((p,i) => `<tr>
+          <td>${i+1}</td>
+          <td>${escHtml(p.nombre)}</td>
+          <td>${escHtml(p.ci)}</td>
+          <td style="text-align:center">${escHtml(p.edad)}</td>
+          <td>${escHtml(p.academia)}</td>
+          <td>${p.pagado ? '<span class="badge-pagado" style="padding:2px 8px">✅</span>' : '<span class="badge-pendiente-fin" style="padding:2px 8px">❌</span>'}</td>
+        </tr>`).join('')}
+      </table></div>
+    </div>`;
+  });
+  cont.innerHTML = html;
+}
+
+function imprimirDesgloseCursos() {
+  const cursos = desglosarPorCurso();
+  const nombres = Object.keys(cursos).sort();
+  if (!nombres.length) { alert('Todavía no hay inscripciones a MasterClass'); return; }
+
+  const secciones = nombres.map(curso => {
+    const lista = cursos[curso].sort((a,b) => a.academia.localeCompare(b.academia) || a.nombre.localeCompare(b.nombre));
+    const filas = lista.map((p,i) => `
+      <tr>
+        <td style="text-align:center">${i+1}</td>
+        <td>${escHtml(p.nombre)}</td>
+        <td>${escHtml(p.ci)}</td>
+        <td style="text-align:center">${escHtml(p.edad)}</td>
+        <td>${escHtml(p.academia)}</td>
+        <td style="text-align:center">☐</td>
+      </tr>`).join('');
+    return `<div style="page-break-inside:avoid;margin-bottom:22px">
+      <h2 style="color:#6B21A8;font-size:15px;margin:0 0 2px">${escHtml(curso)}</h2>
+      <div style="color:#888;font-size:11px;margin-bottom:8px">${lista.length} participante(s)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px" border="1" cellpadding="5">
+        <tr style="background:#3B0764;color:#fff">
+          <th>#</th><th style="text-align:left">Nombre</th><th style="text-align:left">CI</th><th>Edad</th><th style="text-align:left">Academia</th><th>Pulsera / Cert.</th>
+        </tr>
+        ${filas}
+      </table>
+    </div>`;
+  }).join('');
+
+  document.getElementById('print-academia').innerHTML = `
+    <div style="font-family:'Segoe UI',Arial,sans-serif;padding:10px">
+      <h1 style="color:#3B0764;font-size:20px;margin-bottom:2px">PULSO Festival Internacional de Danza 2026</h1>
+      <h2 style="color:#6B21A8;font-size:16px;margin:0 0 4px">Desglose de MasterClass por curso</h2>
+      <p style="color:#888;font-size:11px;margin:0 0 16px">Generado el ${new Date().toLocaleString('es-PY')}</p>
+      ${secciones}
+    </div>`;
+
+  document.body.classList.add('imprimiendo');
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => document.body.classList.remove('imprimiendo'), 300);
+  }, 60);
+
+  log('Imprimió desglose de MasterClass por curso');
+}
+
+function renderResumenMasterClass() {
+  const conteo = {};
+  MC_DATA.forEach(mc => {
+    const cant = parseInt(mc.cant_part) || 1;
+    (mc.masterclasses || '').toString().split(',').forEach(item => {
+      const label = item.split('—')[0].trim();
+      if (!label) return;
+      conteo[label] = (conteo[label] || 0) + cant;
+    });
+  });
+  const entradas = Object.entries(conteo).sort((a,b) => b[1]-a[1]);
+  const el = document.getElementById('mc-resumen');
+  if (!entradas.length) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="tbl-wrap"><table>
+    <tr><th>MasterClass</th><th style="text-align:center">Participantes anotados</th></tr>
+    ${entradas.map(([nombre,cant]) => `<tr><td>${escHtml(nombre)}</td><td style="text-align:center;font-weight:700;color:var(--p)">${cant}</td></tr>`).join('')}
+  </table></div>`;
+}
+
+function agruparMCPorAcademia() {
+  const mapa = {};
+  MC_DATA.forEach(mc => {
+    const nombre = mc.inst_nombre || mc.institucion || 'Sin Academia';
+    if (!mapa[nombre]) mapa[nombre] = [];
+    mapa[nombre].push(mc);
+  });
+  MC_ACAD = Object.keys(mapa).sort().map(nombre => ({nombre, inscripciones: mapa[nombre]}));
+  MC_ACAD_FILTRADA = [...MC_ACAD];
+  renderMCTabla(MC_ACAD_FILTRADA);
+}
+
+function renderMCTabla(lista) {
+  if (!lista.length) {
+    document.getElementById('mc-tabla').innerHTML = '<div style="color:#888;text-align:center;padding:16px">Todavía no hay inscripciones a MasterClass</div>';
+    return;
+  }
+  let html = '';
+  lista.forEach(ac => {
+    const total = ac.inscripciones.reduce((s,mc) => s + montoFinalMC(mc), 0);
+    const pagadas = ac.inscripciones.filter(mc => mc.estado === 'Pago confirmado').length;
+    let badge;
+    if (pagadas === ac.inscripciones.length) badge = '<span class="badge-pagado">✅ Todo pagado</span>';
+    else if (pagadas > 0) badge = '<span class="badge-parcial">⚠️ Parcial</span>';
+    else badge = '<span class="badge-pendiente-fin">❌ Sin pagar</span>';
+    html += `<div class="fin-academia-row" onclick="verDetalleAcademiaMC('${escHtml(ac.nombre)}')">
+      <div class="fin-ac-nombre">${escHtml(ac.nombre)}</div>
+      <div class="fin-ac-obras">${pagadas}/${ac.inscripciones.length} insc.</div>
+      <div class="fin-ac-estado">${badge}</div>
+      <div class="fin-ac-deuda">${formatGs(total)}</div>
+    </div>`;
+  });
+  document.getElementById('mc-tabla').innerHTML = html;
+}
+
+function filtrarMCAcademias() {
+  const q = document.getElementById('mc-buscar').value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  MC_ACAD_FILTRADA = MC_ACAD.filter(a => a.nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q));
+  renderMCTabla(MC_ACAD_FILTRADA);
+}
+
+function montoFinalMC(mc) {
+  const base = parseMonto(mc.costo_total);
+  const ajusteBeca = AJUSTES_BECA[mc.id];
+  const beca = ajusteBeca ? (parseInt(ajusteBeca.beca) || 0) : 0;
+  return Math.round(base * (1 - beca/100));
+}
+
+function verDetalleAcademiaMC(nombre) {
+  const ac = MC_ACAD.find(a => a.nombre === nombre);
+  if (!ac) return;
+  document.getElementById('mc-detalle-titulo').textContent = '🏫 ' + nombre;
+  document.getElementById('mc-detalle-card').style.display = 'block';
+  document.getElementById('mc-detalle-card').scrollIntoView({behavior:'smooth', block:'start'});
+
+  let html = `<div class="tbl-wrap"><table>
+    <tr><th>ID</th><th>Participante(s)</th><th>MasterClasses</th><th>Part.</th><th>Costo</th><th>Pago</th><th>Estado</th><th>Comprobante</th><th>Beca</th><th></th></tr>`;
+  ac.inscripciones.forEach(mc => {
+    const pagada = mc.estado === 'Pago confirmado';
+    const compLink = mc.comp_drive_url ? `<a class="musica-link" href="${mc.comp_drive_url}" target="_blank">📎 Ver</a>` : '—';
+    const ajusteBeca = AJUSTES_BECA[mc.id];
+    const beca = ajusteBeca ? (parseInt(ajusteBeca.beca) || 0) : 0;
+    const montoOriginal = parseMonto(mc.costo_total);
+    const montoAplicado = montoFinalMC(mc);
+    const costoHtml = beca > 0
+      ? `<span style="text-decoration:line-through;color:#aaa;font-size:.72rem;font-weight:400">${formatGs(montoOriginal)}</span><br>${formatGs(montoAplicado)} <span style="font-size:.65rem;background:#DCFCE7;color:#16A34A;padding:1px 5px;border-radius:99px">Beca ${beca}%</span>`
+      : formatGs(montoAplicado);
+    html += `<tr>
+      <td style="font-size:.72rem">${escHtml(mc.id)}</td>
+      <td style="font-size:.78rem;white-space:normal;max-width:180px">${escHtml(extraerNombresMC(mc.participantes))}</td>
+      <td style="font-size:.75rem;white-space:normal;max-width:220px">${escHtml((mc.masterclasses || '—').toString())}</td>
+      <td style="text-align:center">${mc.cant_part || 0}</td>
+      <td style="font-weight:700;color:var(--p);white-space:nowrap">${costoHtml}</td>
+      <td style="font-size:.75rem">${escHtml(mc.forma_pago || '—')}</td>
+      <td>${pagada ? '<span class="badge-pagado" style="padding:2px 8px">✅ Pagado</span>' : '<span class="badge-pendiente-fin" style="padding:2px 8px">❌ Pendiente</span>'}</td>
+      <td>${compLink}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-sm" style="${beca===50?'background:#6B21A8;color:#fff':''}" onclick="aplicarBecaMC('${escHtml(mc.id)}',50,'${escHtml(nombre)}')">50%</button>
+        <button class="btn-sm" style="${beca===100?'background:#6B21A8;color:#fff':''}" onclick="aplicarBecaMC('${escHtml(mc.id)}',100,'${escHtml(nombre)}')">100%</button>
+        ${beca>0 ? `<button class="btn-sm" onclick="aplicarBecaMC('${escHtml(mc.id)}',0,'${escHtml(nombre)}')">✕</button>` : ''}
+      </td>
+      <td>${pagada
+        ? `<button class="btn-pendiente" style="padding:3px 8px;font-size:.7rem" onclick="cambiarEstadoMC('${escHtml(mc.id)}','pendiente')">↩ Pendiente</button>`
+        : `<button class="btn-ok" style="padding:3px 8px;font-size:.7rem" onclick="cambiarEstadoMC('${escHtml(mc.id)}','pagado')">✅ Confirmar</button>`
+      }</td>
+    </tr>`;
+  });
+  html += `</table></div>`;
+  document.getElementById('mc-detalle-contenido').innerHTML = html;
+}
+
+async function aplicarBecaMC(inscId, beca, academia) {
+  try {
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'aplicarBeca', id:inscId, beca, hoja:'Inscripciones MasterClass', usuario: ME ? ME.nombre : ''}));
+    const resp = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+    const json = await resp.json().catch(()=>({ok:false,error:'Sin respuesta'}));
+    if (!json.ok) { alert('Error: ' + (json.error||'desconocido')); return; }
+    await cargarAjustesBeca();
+    agruparMCPorAcademia();
+    verDetalleAcademiaMC(academia);
+    log(beca > 0 ? ('Beca MasterClass aplicada: ' + inscId + ' → ' + beca + '%') : ('Beca MasterClass quitada: ' + inscId));
+  } catch(err) {
+    alert('Error de conexión: ' + err.message);
+  }
+}
+
+function cerrarDetalleMC() {
+  document.getElementById('mc-detalle-card').style.display = 'none';
+}
+
+async function cambiarEstadoMC(inscId, nuevoEstado) {
+  const estadoTexto = nuevoEstado === 'pagado' ? 'Pago confirmado' : 'Pendiente de pago';
+  try {
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'cambiarEstado', id:inscId, estado:estadoTexto, hoja:'Inscripciones MasterClass'}));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+    MC_DATA.forEach(mc => { if (mc.id === inscId) mc.estado = estadoTexto; });
+    agruparMCPorAcademia();
+    const nombreAbierto = document.getElementById('mc-detalle-titulo').textContent.replace('🏫 ','');
+    if (document.getElementById('mc-detalle-card').style.display !== 'none') verDetalleAcademiaMC(nombreAbierto);
+    log('Estado pago MasterClass cambiado: ' + inscId + ' → ' + estadoTexto);
+  } catch(err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+// ── ACADEMIAS (catastro con códigos y contraseñas) ──────────
+let ACAD_DATA = [];
+let ACAD_FILTRADA = [];
+
+async function cargarAcademiasAdmin() {
+  document.getElementById('acad-admin-tabla').innerHTML = '<div class="loading"><span class="sp"></span> Cargando...</div>';
+  try {
+    const r = await fetch(SCRIPT_URL + '?accion=getAcademiasConClaves&_=' + Date.now());
+    const json = await r.json();
+    ACAD_DATA = json.academias || [];
+    ACAD_FILTRADA = [...ACAD_DATA];
+    renderAcademiasAdmin(ACAD_FILTRADA);
+  } catch(e) {
+    document.getElementById('acad-admin-tabla').innerHTML = '<div style="color:#991B1B">Error al cargar. Intentá de nuevo.</div>';
+  }
+}
+
+function renderAcademiasAdmin(lista) {
+  if (!lista.length) {
+    document.getElementById('acad-admin-tabla').innerHTML = '<div style="color:#888;text-align:center;padding:16px">No se encontraron academias</div>';
+    return;
+  }
+  let html = `<div class="tbl-wrap"><table>
+    <tr><th>Código</th><th>Academia</th><th>Contraseña Portal</th><th></th></tr>`;
+  lista.forEach(a => {
+    html += `<tr>
+      <td style="font-weight:700;color:var(--p)">${escHtml(a.codigo)}</td>
+      <td>${escHtml(a.nombre)}</td>
+      <td style="font-weight:700;letter-spacing:.5px">${escHtml(a.clave || '— sin generar —')}</td>
+      <td><button class="btn-sm" onclick="copiarCredenciales('${escHtml(a.codigo)}','${escHtml(a.clave||'')}')">📋 Copiar</button></td>
+    </tr>`;
+  });
+  html += `</table></div>`;
+  document.getElementById('acad-admin-tabla').innerHTML = html;
+}
+
+function filtrarAcademiasAdmin() {
+  const q = document.getElementById('acad-buscar').value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  ACAD_FILTRADA = ACAD_DATA.filter(a => a.nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(q));
+  renderAcademiasAdmin(ACAD_FILTRADA);
+}
+
+function copiarCredenciales(codigo, clave) {
+  const texto = 'Código: ' + codigo + ' — Contraseña: ' + clave;
+  navigator.clipboard.writeText(texto).then(()=>{
+    alert('Copiado: ' + texto);
+  }).catch(()=>{
+    alert(texto);
+  });
+}
+
+function escHtml(str) {
+  return (str===null||str===undefined ? '' : String(str)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── LLAMADOS (ajuste manual de precio, sin tocar Inscripciones 2026) ──
+let AJUSTES_LLAMADO = {};
+
+async function cargarAjustesLlamado() {
+  try {
+    const r = await fetch(SCRIPT_URL + "?accion=getAjustesLlamado&_=" + Date.now());
+    const json = await r.json();
+    AJUSTES_LLAMADO = {};
+    (json.ajustes || []).forEach(a => { AJUSTES_LLAMADO[a.id] = a; });
+  } catch(e) { AJUSTES_LLAMADO = {}; }
+}
+
+// ── BECAS (descuento %, sin tocar Inscripciones 2026 — mismo esquema que Llamados) ──
+let AJUSTES_BECA = {};
+
+async function cargarAjustesBeca() {
+  try {
+    const r = await fetch(SCRIPT_URL + "?accion=getAjustesBeca&_=" + Date.now());
+    const json = await r.json();
+    AJUSTES_BECA = {};
+    (json.becas || []).forEach(b => { AJUSTES_BECA[b.id] = b; });
+  } catch(e) { AJUSTES_BECA = {}; }
+}
+
+// Mismos precios que en formulario.js — copiados acá para no depender de que config.js cargue bien
+const COSTOS_LLAMADO = {
+  primero: { solista: 240000, duo_trio_cuarteto: 180000, grupo: 120000, gran_grupo: 100000, coreografia: 250000 },
+  segundo: { solista: 270000, duo_trio_cuarteto: 220000, grupo: 150000, gran_grupo: 130000, coreografia: 350000 },
+};
+
+function costoParaLlamado(obra, llamado) {
+  const co = COSTOS_LLAMADO[llamado];
+  const tipo = obra.tipo_part;
+  const cant = (obra.participantes && obra.participantes.length) ? obra.participantes.length : (parseInt(obra.cant_part)||1);
+  let base = 0;
+  if (tipo === 'solista') base = co.solista;
+  else if (['duo','trio','cuarteto'].includes(tipo)) base = co.duo_trio_cuarteto * cant;
+  else if (tipo === 'grupo') base = co.grupo * cant;
+  else if (tipo === 'gran_grupo') base = co.gran_grupo * cant;
+  const coreo = (obra.compite_coreo||'').toString().trim().toLowerCase() === 'si';
+  if (coreo) base += co.coreografia;
+  return base;
+}
+
+async function aplicarLlamadoNuevo(id, llamado, academia) {
+  const obra = DATA.find(d => d.id === id);
+  if (!obra) return;
+  const costoNuevo = costoParaLlamado(obra, llamado);
+  if (!confirm('¿Aplicar precio de ' + (llamado==='primero'?'1er':'2do') + ' llamado a "' + obra.obra + '"?\n\nNuevo monto: ' + formatGs(costoNuevo) + '\n\nEsto NO modifica la fila original en Inscripciones 2026, queda registrado aparte.')) return;
+  try {
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'aplicarLlamado', id, llamado, costoNuevo, usuario: ME ? ME.nombre : ''}));
+    const resp = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+    const json = await resp.json().catch(()=>({ok:false,error:'Sin respuesta'}));
+    if (!json.ok) { alert('Error: ' + (json.error||'desconocido')); return; }
+    await cargarAjustesLlamado();
+    verDetalleAcademia(academia);
+    renderFinTabla(finDataFiltrada);
+    log('Llamado aplicado: ' + id + ' → ' + llamado);
+  } catch(err) {
+    alert('Error de conexión: ' + err.message);
+  }
+}
+
+async function quitarAjusteLlamado(id, academia) {
+  if (!confirm('¿Quitar el ajuste de llamado de esta obra? Va a volver a usar el monto original.')) return;
+  try {
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'quitarAjusteLlamado', id}));
+    const resp = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+    const json = await resp.json().catch(()=>({ok:false,error:'Sin respuesta'}));
+    if (!json.ok) { alert('Error: ' + (json.error||'desconocido')); return; }
+    await cargarAjustesLlamado();
+    verDetalleAcademia(academia);
+    renderFinTabla(finDataFiltrada);
+    log('Se quitó el ajuste de llamado: ' + id);
+  } catch(err) {
+    alert('Error de conexión: ' + err.message);
+  }
+}
+</script>
+</body>
+</html>

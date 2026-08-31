@@ -1,4 +1,3 @@
-
 // ============================================================
 //  PULSO 2026 — ARCHIVO DE CONFIGURACIÓN
 //  Modificá este archivo para cambiar textos, costos y colores

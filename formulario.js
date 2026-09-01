@@ -1394,7 +1394,7 @@ const TIPOS_PART=[
 
 // Estado en vivo de cada llave de cierre (true = cerrado). Arranca en "todo cerrado"
 // por seguridad hasta que llegue la respuesta del servidor, y también si esa consulta falla.
-let CIERRES_ACTIVOS={ jueves:true, sabado:true, viernes:true, baby_mini:true };
+let CIERRES_ACTIVOS={ jueves:true, sabado:true, viernes:true, baby_mini:true, general:true };
 
 async function cargarCierresInscripcion(){
   try{
@@ -1404,10 +1404,28 @@ async function cargarCierresInscripcion(){
   }catch(e){
     // Si falla la consulta, se quedan los valores por defecto (cerrado) para no arriesgar
   }
+  aplicarCierreGeneral();
   actualizarDisponibilidadTipo();
 }
 
+// Interruptor "Cierre General" del panel admin: cierra COMPLETO el formulario
+// oficial de obras (todas las modalidades/categorías/tipos), sin tocar
+// MasterClass ni la Lista de Espera. Se prende/apaga en vivo, sin redeployar código.
+function aplicarCierreGeneral(){
+  const banner=document.getElementById('cerrado-banner');
+  if(!banner) return;
+  if(CIERRES_ACTIVOS.general){
+    banner.innerHTML='Las inscripciones oficiales están cerradas por el momento. Seguinos en @pulsofestival_ para novedades, o <a href="lista-espera.html" style="color:#fff;text-decoration:underline;font-weight:700">anotate en la Lista de Espera →</a>';
+    banner.style.display='block';
+    document.querySelectorAll('.btn-next,.btn-submit').forEach(b=>b.disabled=true);
+  } else if(cfg && cfg.formulario.activo){
+    banner.style.display='none';
+    document.querySelectorAll('.btn-next,.btn-submit').forEach(b=>b.disabled=false);
+  }
+}
+
 function getTiposCerrados(modalidad,categoria){
+  if(CIERRES_ACTIVOS.general) return TIPOS_PART.map(t=>t.value); // cierre general: todo cerrado
   const cierre=cfg&&cfg.cierres_inscripcion;
   if(!cierre) return [];
   const claveCat=(cierre.categoria_clave||{})[categoria];

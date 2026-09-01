@@ -1451,10 +1451,11 @@ function actualizarDisponibilidadTipo(){
   const cerradosLbl=TIPOS_PART.filter(t=>cerrados.includes(t.value)).map(t=>t.label.replace(/\s*\(.*?\)/,''));
   const abiertosLbl=TIPOS_PART.filter(t=>!cerrados.includes(t.value)).map(t=>t.label.replace(/\s*\(.*?\)/,''));
   aviso.style.display='block';
+  const linkEspera=' <a href="lista-espera.html" style="color:#991B1B;text-decoration:underline;font-weight:700">Anotate en la Lista de Espera →</a>';
   if(!abiertosLbl.length){
-    aviso.textContent='🚫 Las inscripciones para esta modalidad y categoría están cerradas por el momento.';
+    aviso.innerHTML='🚫 Las inscripciones para esta modalidad y categoría están cerradas por el momento.'+linkEspera;
   } else {
-    aviso.textContent='🚫 Cerrado para esta modalidad: '+cerradosLbl.join(', ')+'. Todavía se puede inscribir: '+abiertosLbl.join(', ')+'.';
+    aviso.innerHTML='🚫 Cerrado para esta modalidad: '+cerradosLbl.join(', ')+'. Todavía se puede inscribir: '+abiertosLbl.join(', ')+'.'+linkEspera;
   }
 }
 

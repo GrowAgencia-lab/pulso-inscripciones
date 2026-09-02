@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PULSO Festival Internacional de Danza</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#6B21A8;--pd:#3B0764;--a:#EAB308;--a2:#A855F7;
+  --txt:#1C1033;--borde:#DDD6FE;
+}
+body{
+  background-color:#51155D;
+  background-image:url('fondo.jpg');
+  background-size:cover;
+  background-position:center top;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  font-family:'Segoe UI',system-ui,sans-serif;
+  color:var(--txt);
+  min-height:100vh;
+}
+
+/* TOPBAR */
+.topbar{
+  background:#fff;
+  padding:.9rem 1.2rem;
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  position:sticky;top:0;z-index:50;
+}
+.topbar img{height:32px}
+.topbar h1{font-size:.95rem;font-weight:700;color:var(--pd);letter-spacing:.3px}
+
+/* HERO */
+.hero{text-align:center;padding:2.2rem 1.2rem 1.2rem}
+.hero .logo-grande{height:90px;margin-bottom:.75rem}
+.hero h2{color:#fff;font-size:1.6rem;font-weight:800;margin-bottom:.35rem}
+.hero p{color:#EAD9F7;font-size:.95rem}
+
+/* CARD BLANCA CONTENEDORA */
+.contenedor{
+  background:#fff;
+  border-radius:20px;
+  max-width:660px;
+  margin:1.5rem auto;
+  padding:1.6rem 1.4rem 2rem;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+
+/* GRID DE BOTONES */
+.grid-menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+}
+
+.card-btn{
+  position:relative;
+  display:block;
+  aspect-ratio:1.5/1;
+  border-radius:14px;
+  overflow:hidden;
+  background-size:cover;
+  background-position:center;
+  text-decoration:none;
+  transition:transform .15s;
+}
+.card-btn:active{transform:scale(.97)}
+
+.card-btn.proximamente{
+  filter:grayscale(65%) brightness(.75);
+  cursor:default;
+  pointer-events:none;
+}
+.card-btn .badge-prox{
+  position:absolute;top:8px;right:8px;
+  background:rgba(255,255,255,.92);
+  color:#3B0764;
+  font-size:.62rem;
+  font-weight:800;
+  padding:.2rem .5rem;
+  border-radius:99px;
+  text-transform:uppercase;
+  letter-spacing:.2px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+
+.card-fotos{grid-column:span 2}
+
+/* REDES */
+.redes{
+  display:flex;
+  justify-content:center;
+  gap:.8rem;
+  margin:1.8rem 0 1.2rem;
+}
+.btn-wsp{
+  background:#25D366;color:#fff;text-decoration:none;
+  font-weight:700;font-size:.85rem;
+  padding:.6rem 1.3rem;border-radius:99px;
+  display:flex;align-items:center;gap:.4rem;
+}
+.iconos-sociales{display:flex;gap:.7rem;justify-content:center;margin-bottom:1.6rem}
+.iconos-sociales a{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--p);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:1.1rem;
+}
+.iconos-sociales a:hover{background:var(--pd)}
+
+/* SPOTIFY */
+.spotify-wrap{border-radius:14px;overflow:hidden}
+.spotify-wrap iframe{display:block;width:100%;border:none}
+
+/* FOOTER */
+.footer-nota{
+  text-align:center;color:#EAD9F7;font-size:.72rem;
+  padding:1.2rem 1rem 2rem;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="logo.png" alt="PULSO 2026" onerror="this.style.display='none'"/>
+  <h1>PULSO FESTIVAL INTERNACIONAL DE DANZA</h1>
+</div>
+
+<div class="hero">
+  <img class="logo-grande" src="logo.png" alt="PULSO" onerror="this.style.display='none'"/>
+  <h2>¡Bienvenidos a Pulso!</h2>
+  <p>La experiencia que vibra al ritmo de tu pasión por la danza.</p>
+</div>
+
+<div class="contenedor">
+  <div class="grid-menu">
+
+    <a class="card-btn" style="background-image:url('boton_reglamento.jpeg')"
+       href="https://drive.google.com/drive/folders/1sGd7VHXd-pLOpyItZAJTTFLGqyopIurs?usp=sharing" target="_blank" rel="noopener">
+    </a>
+
+    <a class="card-btn" style="background-image:url('boton_inscripciones.jpeg')" href="index.html">
+    </a>
+
+    <a class="card-btn" style="background-image:url('boton_masterclass.png')" href="masterclass.html">
+    </a>
+
+    <a class="card-btn" style="background-image:url('boton_tus_inscripciones.jpeg')" href="portal-musica.html">
+    </a>
+
+    <a class="card-btn" style="background-image:url('boton_orden_de_participacion.jpg')" href="orden-participacion.html">
+    </a>
+
+    <div class="card-btn proximamente" style="background-image:url('boton_devoluciones.jpeg')">
+      <span class="badge-prox">Próximamente</span>
+    </div>
+
+    <div class="card-btn proximamente card-fotos" style="background-image:url('boton_fotos.jpeg')">
+      <span class="badge-prox">Próximamente</span>
+    </div>
+
+  </div>
+
+  <div class="redes">
+    <a class="btn-wsp" href="https://wa.me/595986250000" target="_blank" rel="noopener">💬 WhatsApp</a>
+  </div>
+  <div class="iconos-sociales">
+    <a href="https://www.facebook.com/concursopulso" target="_blank" rel="noopener" aria-label="Facebook">📘</a>
+    <a href="https://www.instagram.com/pulsofestival_" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+  </div>
+
+  <div class="spotify-wrap">
+    <iframe src="https://open.spotify.com/embed/track/2Be5mag2z2ygcVAhtnky48?utm_source=generator"
+      width="100%" height="152" frameborder="0" allowfullscreen=""
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy">
+    </iframe>
+  </div>
+</div>
+
+<div class="footer-nota">PULSO Festival Internacional de Danza · Asunción, Paraguay</div>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>Activar Orden — Viernes, Sábado, Domingo</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#FAF7FF;color:#3B0764;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}
+  .card{background:#fff;border-radius:14px;padding:2rem;max-width:460px;box-shadow:0 4px 20px rgba(59,7,100,.12);text-align:center}
+  h1{font-size:1.15rem;margin:0 0 .5rem}
+  p{font-size:.9rem;color:#555;line-height:1.5}
+  button{background:#6B21A8;color:#fff;border:none;border-radius:10px;padding:.9rem 1.6rem;font-size:1rem;font-weight:700;cursor:pointer;margin-top:1rem}
+  button:disabled{opacity:.6;cursor:default}
+  button:hover:not(:disabled){background:#3B0764}
+  #estado{margin-top:1.2rem;font-size:.9rem;font-weight:600;min-height:1.4em}
+  .ok{color:#16A34A}
+  .err{color:#EF4444}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>📋 Activar Orden de Participación pública</h1>
+    <p>Este botón activa el portal público de Orden de Participación para <strong>Viernes, Sábado y Domingo</strong> (no toca Jueves, queda como está).</p>
+    <button id="btn" onclick="activar()">Activar Viernes, Sábado y Domingo</button>
+    <div id="estado"></div>
+  </div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLDZFKXMYPaL0UlUjStOso_vyeC8UdDqVuw3T_SyjzHLbRqxjDRQ/exec";
+
+async function activar(){
+  const btn = document.getElementById('btn');
+  const estado = document.getElementById('estado');
+  btn.disabled = true;
+  estado.className = '';
+  estado.textContent = '⏳ Activando...';
+  try{
+    const fd = new FormData();
+    fd.append('data', JSON.stringify({accion:'setConfigOrdenPublico', vie:true, sab:true, dom:true}));
+    await fetch(SCRIPT_URL, {method:'POST', body:fd, mode:'no-cors'});
+    estado.className = 'ok';
+    estado.textContent = '✅ Listo. Viernes, Sábado y Domingo ya están públicos en la app.';
+  }catch(err){
+    estado.className = 'err';
+    estado.textContent = '❌ Error de conexión: ' + err.message + ' — probá de nuevo.';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

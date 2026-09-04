@@ -267,7 +267,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLD
 const MODALIDADES = [
   { id:"ballet",         nombre:"Ballet",
     niveles:{
-      kids:     {label:"Kids",     dia:"Martes 08/09/2026",    horario:"15:30 a 17:00", sede:"IMA",  instructor:""},
+      kids:     {label:"Kids",     dia:"Martes 08/09/2026",    horario:"15:30 a 17:00", sede:"IMA",  instructor:"", cerrado:true},
       avanzado: {label:"Avanzado", dia:"Martes 08/09/2026",    horario:"18:00 a 19:30", sede:"BCMM", instructor:""},
     }},
   { id:"contemporaneo",  nombre:"Contemporáneo",
@@ -339,10 +339,10 @@ function renderModalidades(){
       </label>
       <div class="mod-niveles" id="niveles-${m.id}">
         ${Object.entries(m.niveles).map(([nivelId,n])=>`
-          <label class="nivel-opt">
-            <input type="radio" name="nivel-${m.id}" value="${nivelId}" onchange="calcularCosto()"/>
+          <label class="nivel-opt" style="${n.cerrado ? 'opacity:.55;cursor:not-allowed' : ''}">
+            <input type="radio" name="nivel-${m.id}" value="${nivelId}" onchange="calcularCosto()" ${n.cerrado ? 'disabled' : ''}/>
             <div>
-              <div class="nivel-label">${n.label}</div>
+              <div class="nivel-label">${n.label}${n.cerrado ? ' · <span style="color:#B91C1C">🔒 Cupo cerrado</span>' : ''}</div>
               <div class="nivel-meta">📅 ${n.dia} · 🕐 ${n.horario}${n.instructor ? ' · Instructor/a: '+n.instructor : ''}</div>
             </div>
           </label>`).join('')}

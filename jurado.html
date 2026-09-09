@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>PULSO 2026 — Portal de Jurado</title>
+<style>
+  :root{
+    --p: #6B21A8;
+    --p2: #3B0764;
+    --accent: #EAB308;
+    --bg: #51155D;
+    --bg-elev: #FFFFFF;
+    --texto: #2B2432;
+    --muted: #6E6079;
+    --borde: #E4DAF0;
+    --ok: #1e8a5f;
+    --ok-bg: #dff5ea;
+    --warn: #b8720b;
+    --warn-bg: #fbead0;
+    --err: #c62855;
+    --err-bg: #fbdde6;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--texto);
+    font-family:'Segoe UI', Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;}
+  .app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+  header{padding:16px 20px 14px;border-bottom:1px solid rgba(255,255,255,.15);position:sticky;top:0;
+    background:linear-gradient(120deg,var(--p2),var(--p));z-index:10;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand img{height:44px;display:block;}
+  .brand-text{color:#fff;}
+  .brand-text .t1{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:700;}
+  .brand-text .t2{font-size:15px;font-weight:700;}
+
+  .lock-badge{margin-top:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);
+    border-radius:12px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    color:#fff;font-size:12.5px;}
+  .lock-badge b{font-weight:700;}
+  .lock-badge button{background:none;border:none;color:#fff;text-decoration:underline;font-size:11.5px;
+    cursor:pointer;padding:0;white-space:nowrap;opacity:.9;}
+
+  main{flex:1;padding:20px;padding-bottom:200px;}
+
+  .setup-card{background:var(--bg-elev);border:1px solid var(--borde);border-radius:var(--radius);
+    padding:22px;margin-top:10px;}
+  .setup-card h2{margin:0 0 6px;font-size:17px;color:var(--p);}
+  .setup-card p.hint{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.5;}
+  .setup-field{margin-bottom:16px;}
+  .setup-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.6px;color:var(--muted);margin-bottom:6px;}
+  .setup-field select{width:100%;background:#FAFAFF;border:1.5px solid var(--borde);color:var(--texto);
+    border-radius:10px;padding:13px 12px;font-size:15px;}
+  .setup-field select:disabled{opacity:.5;}
+  .confirm-box{background:#FAFAFF;border:1.5px solid var(--p);border-radius:12px;padding:14px 16px;
+    margin-top:6px;margin-bottom:16px;font-size:13.5px;line-height:1.6;}
+  .confirm-box b{color:var(--p);}
+  .btn-primary{width:100%;background:linear-gradient(120deg,var(--p2),var(--p));color:#fff;border:none;
+    border-radius:12px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-primary:active{transform:scale(.98);}
+
+  .lookup{display:flex;gap:8px;margin-bottom:16px;}
+  .lookup input{flex:1;background:var(--bg-elev);border:1.5px solid var(--borde);color:var(--texto);
+    border-radius:12px;padding:14px 16px;font-size:20px;font-variant-numeric:tabular-nums;
+    text-align:center;letter-spacing:1px;}
+  .lookup input:focus{outline:none;border-color:var(--p);}
+  .lookup button{background:var(--p);color:#fff;border:none;border-radius:12px;
+    padding:0 20px;font-weight:700;font-size:14px;cursor:pointer;}
+
+  .hint{color:#E9D9F5;font-size:12.5px;line-height:1.5;margin-bottom:16px;}
+
+  .card{background:var(--bg-elev);border:1px solid var(--borde);border-radius:var(--radius);
+    padding:18px;margin-bottom:16px;}
+  .obra-title{font-size:20px;font-weight:700;color:var(--p);margin:0 0 4px;line-height:1.25;}
+  .obra-academia{font-size:13px;color:var(--muted);margin-bottom:14px;font-weight:600;}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:13px;}
+  .meta-grid .k{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;}
+  .meta-grid .v{color:var(--texto);font-weight:600;}
+  .participantes{margin-top:14px;padding-top:14px;border-top:1px solid var(--borde);font-size:13px;line-height:1.6;}
+  .participantes .k{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+
+  .section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#E9D9F5;margin:22px 0 10px;}
+
+  .score-box{background:var(--bg-elev);border:1px solid var(--borde);border-radius:var(--radius);padding:20px;text-align:center;}
+  .score-value{font-size:48px;font-weight:700;color:var(--p);line-height:1;font-variant-numeric:tabular-nums;}
+  .score-select{width:100%;margin-top:16px;background:#FAFAFF;border:1.5px solid var(--borde);color:var(--texto);
+    border-radius:10px;padding:13px 12px;font-size:16px;text-align:center;font-weight:700;}
+
+  .score-hint{margin-top:10px;padding:6px 16px;font-size:13px;color:var(--muted);}
+  .puesto-badge{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:6px 16px;
+    border-radius:20px;font-size:13px;font-weight:700;}
+  .puesto-badge.oro{background:rgba(214,164,34,0.15);color:#a37c14;}
+  .puesto-badge.plata{background:rgba(150,150,160,0.15);color:#6f6f79;}
+  .puesto-badge.bronce{background:rgba(184,110,60,0.15);color:#8a5228;}
+  .puesto-badge.sinpremio{background:rgba(154,143,120,0.15);color:var(--muted);}
+  .puesto-badge .dot2{width:8px;height:8px;border-radius:50%;background:currentColor;}
+
+  .escala-label{margin-top:16px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;}
+  .escala-panel{margin-top:8px;border:1px solid var(--borde);border-radius:10px;overflow:hidden;}
+  .escala-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;
+    border-bottom:1px solid var(--borde);font-size:13px;text-align:left;}
+  .escala-row:last-child{border-bottom:none;}
+  .escala-row .nums{font-variant-numeric:tabular-nums;font-weight:700;}
+  .escala-row .chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .escala-row .chip.oro{background:rgba(214,164,34,0.15);color:#a37c14;}
+  .escala-row .chip.plata{background:rgba(150,150,160,0.15);color:#6f6f79;}
+  .escala-row .chip.bronce{background:rgba(184,110,60,0.15);color:#8a5228;}
+
+  .coreo-flag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--p);
+    background:rgba(107,33,168,0.08);border:1px solid rgba(107,33,168,0.25);padding:4px 10px;border-radius:20px;margin-bottom:10px;}
+
+  .premio-locked{background:var(--bg-elev);border:1px solid var(--borde);border-radius:12px;
+    padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.5;}
+  .nom-box{background:var(--bg-elev);border:1px solid var(--borde);border-radius:var(--radius);padding:16px;}
+  .nom-check{display:flex;align-items:center;gap:10px;background:#FAFAFF;border:1.5px solid var(--borde);
+    border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.4;cursor:pointer;margin-bottom:8px;}
+  .nom-check:last-of-type{margin-bottom:0;}
+  .nom-check input{width:18px;height:18px;flex-shrink:0;accent-color:var(--p);cursor:pointer;}
+  .mencion-field{margin-top:14px;}
+  .mencion-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.6px;color:var(--muted);margin-bottom:6px;}
+  .mencion-field input{width:100%;background:#FAFAFF;border:1.5px solid var(--borde);color:var(--texto);
+    border-radius:10px;padding:12px 14px;font-size:14px;}
+
+  .status-banner{border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.5;margin-top:16px;}
+  .status-banner.ok{background:var(--ok-bg);color:var(--ok);}
+  .status-banner.warn{background:var(--warn-bg);color:var(--warn);}
+  .status-banner.err{background:var(--err-bg);color:var(--err);}
+
+  .footer-actions{position:fixed;bottom:0;left:0;right:0;
+    background:linear-gradient(to top, var(--bg) 65%, transparent);padding:36px 20px 20px;}
+  .footer-inner{max-width:480px;margin:0 auto;}
+  .send-btn{width:100%;background:linear-gradient(120deg,var(--p2),var(--p));color:#fff;border:none;border-radius:14px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.3);padding:16px;font-size:15px;font-weight:700;cursor:pointer;}
+  .send-btn:disabled{background:#8a7f92;color:#cfc4d8;box-shadow:none;cursor:not-allowed;}
+  .modify-note{text-align:center;color:#E9D9F5;font-size:11px;margin-top:9px;line-height:1.5;}
+
+  .empty{text-align:center;padding:50px 20px;color:#E9D9F5;font-size:14px;}
+  .siguiente-link{display:block;text-align:center;margin-top:14px;color:var(--p);font-weight:700;
+    font-size:13px;cursor:pointer;background:none;border:none;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <img src="logo.png" alt="PULSO 2026" onerror="this.style.display='none'">
+      <div class="brand-text">
+        <div class="t1">PULSO 2026</div>
+        <div class="t2">Portal de Jurado</div>
+      </div>
+    </div>
+    <div id="lockBadgeWrap"></div>
+  </header>
+
+  <main id="mainArea"></main>
+
+  <div class="footer-actions" id="footerActions" style="display:none;">
+    <div class="footer-inner">
+      <button class="send-btn" id="sendBtn">Enviar calificación</button>
+      <div class="modify-note" id="modifyNote"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== CONFIG ===================== */
+// OJO: este portal usa un proyecto de Apps Script APARTE del resto del
+// sitio (Code_Jurado.gs, planilla "JURADO PULSO 2026") — no el mismo link
+// que Codigo.gs / orden-participacion.html / panel-musica.html.
+// Reemplazar por el link de la implementación de Code_Jurado.gs en cuanto
+// esté desplegado.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRxhbJPeaPrF1H41ZHOeyjM4Ex7uZHtbyHHaqaylEqvBmqBnTnm6yvBeY3S2jBmF1W/exec';
+
+// El jurado NO elige "bloque" (ese concepto es interno, lo resuelve solo
+// Code_Jurado.gs) — acá solo necesitamos, por día, la lista de nombres para
+// armar el desplegable al instante. Quien manda de verdad es el servidor.
+const JURADOS_POR_DIA = {
+  'Jueves':  ['Simone Malta', 'Carol Segurado', 'Miguel Bonnin'],
+  'Viernes': ['Carol Segurado', 'Jhean Alex', 'Claudia Ramos', 'Thalia Ayala'],
+  'Sábado':  ['Pedro Córdoba', 'Liz Mora', 'Natalia Ramos'],
+  'Domingo': ['Jhean Alex', 'Claudia Ramos']
+};
+
+const NOMINACIONES_FIJAS = [
+  'Revelación Infantil',
+  'Bailarina Destacada',
+  'Bailarín Destacado',
+  'Grupo Infantil Destacado',
+  'Mejor Grupo',
+  'Coreografía distinguida',
+  'Maestro Destacado'
+];
+
+const LOCK_KEY = 'pulso_jurado_lock_2026';
+
+const el = id => document.getElementById(id);
+
+/* ===================== ESTADO ===================== */
+let lock = null; // {dia, jurado}
+let obrasDelBloque = [];
+let currentObra = null;
+let currentScore = null;
+let currentScoreCoreo = null;
+let currentNominaciones = [];
+let currentMencion = '';
+let yaEnviado = false;
+
+/* ===================== Escala / puesto (9.5–10 Oro / 8.5–9.4 Plata / 7–8.4 Bronce) ===================== */
+function puestoDesdePuntaje(score){
+  if(score == null) return null;
+  if(score >= 9.5) return {label:'Oro - 1er Puesto', cls:'oro'};
+  if(score >= 8.5) return {label:'Plata - 2do Puesto', cls:'plata'};
+  if(score >= 7)   return {label:'Bronce - 3er Puesto', cls:'bronce'};
+  return {label:'Sin premio', cls:'sinpremio'};
+}
+function renderPuestoBadge(score){
+  const p = puestoDesdePuntaje(score);
+  if(!p) return '';
+  return `<div class="puesto-badge ${p.cls}"><span class="dot2"></span>${p.label}</div>`;
+}
+function escalaPanelHTML(){
+  return `
+    <div class="escala-label">Escala Oficial PULSO 2026</div>
+    <div class="escala-panel">
+      <div class="escala-row"><span class="nums">9.5 – 10</span><span class="chip oro">Oro - 1er Puesto</span></div>
+      <div class="escala-row"><span class="nums">8.5 – 9.4</span><span class="chip plata">Plata - 2do Puesto</span></div>
+      <div class="escala-row"><span class="nums">7 – 8.4</span><span class="chip bronce">Bronce - 3er Puesto</span></div>
+    </div>`;
+}
+// Opciones del <select> de puntaje: 0.0 a 10.0 de a 0.1 (31 opciones desde
+// 7.0, que es lo mínimo premiable, aunque se deja bajar hasta 5.0 por si
+// hace falta calificar algo muy flojo sin premio).
+function opcionesPuntaje(){
+  const out = [];
+  for(let i = 100; i >= 50; i--){ out.push((i/10).toFixed(1)); }
+  return out;
+}
+
+/* ===================== Bloqueo Día + Jurado ===================== */
+function cargarLockGuardado(){
+  try{
+    const raw = localStorage.getItem(LOCK_KEY);
+    if(!raw) return null;
+    const data = JSON.parse(raw);
+    if(data && data.dia && data.jurado && (JURADOS_POR_DIA[data.dia]||[]).includes(data.jurado)){
+      return data;
+    }
+  }catch(err){}
+  return null;
+}
+function guardarLock(dia, jurado){
+  lock = {dia, jurado};
+  try{ localStorage.setItem(LOCK_KEY, JSON.stringify(lock)); }catch(err){}
+}
+function borrarLock(){
+  lock = null;
+  try{ localStorage.removeItem(LOCK_KEY); }catch(err){}
+}
+
+function renderLockBadge(){
+  const wrap = el('lockBadgeWrap');
+  if(!lock){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `
+    <div class="lock-badge">
+      <span>Jurado: <b>${lock.jurado}</b> · Día: <b>${lock.dia}</b></span>
+      <button id="cambiarJuradoBtn">¿No sos vos? Cambiar</button>
+    </div>`;
+  el('cambiarJuradoBtn').onclick = () => {
+    const ok = confirm(`¿Seguro que querés cambiar de jurado?\n\nActualmente calificando como "${lock.jurado}" (${lock.dia}).\n\nAceptar = cerrar sesión y elegir de nuevo.\nCancelar = seguir como estás.`);
+    if(ok){
+      borrarLock();
+      renderSetup();
+    }
+  };
+}
+
+function renderSetup(){
+  el('footerActions').style.display = 'none';
+  renderLockBadge();
+  el('mainArea').innerHTML = `
+    <div class="setup-card">
+      <h2>Bienvenidos a PULSO EDICIÓN 2026</h2>
+      <p class="hint">Elegí el día en el que estás jurando y después tu nombre. Una vez confirmado queda fijo para toda la sesión.</p>
+      <div class="setup-field">
+        <label>Día</label>
+        <select id="setupDia">
+          <option value="">Elegí el día…</option>
+          ${Object.keys(JURADOS_POR_DIA).map(d => `<option value="${d}">${d}</option>`).join('')}
+        </select>
+      </div>
+      <div class="setup-field">
+        <label>Jurado</label>
+        <select id="setupJurado" disabled>
+          <option value="">Elegí primero el día…</option>
+        </select>
+      </div>
+      <div id="confirmArea"></div>
+      <button class="btn-primary" id="confirmarBtn" disabled>Confirmar y empezar</button>
+    </div>`;
+
+  const diaSel = el('setupDia');
+  const juradoSel = el('setupJurado');
+  const confirmArea = el('confirmArea');
+  const confirmarBtn = el('confirmarBtn');
+
+  diaSel.onchange = () => {
+    const dia = diaSel.value;
+    confirmArea.innerHTML = '';
+    confirmarBtn.disabled = true;
+    if(!dia){
+      juradoSel.disabled = true;
+      juradoSel.innerHTML = '<option value="">Elegí primero el día…</option>';
+      return;
+    }
+    juradoSel.disabled = false;
+    juradoSel.innerHTML = '<option value="">Elegí tu nombre…</option>' +
+      JURADOS_POR_DIA[dia].map(j => `<option value="${j}">${j}</option>`).join('');
+  };
+
+  juradoSel.onchange = () => {
+    const dia = diaSel.value, jurado = juradoSel.value;
+    if(!dia || !jurado){
+      confirmArea.innerHTML = '';
+      confirmarBtn.disabled = true;
+      return;
+    }
+    confirmArea.innerHTML = `<div class="confirm-box">Vas a calificar como <b>${jurado}</b>, día <b>${dia}</b>. Confirmá que sos vos antes de seguir.</div>`;
+    confirmarBtn.disabled = false;
+  };
+
+  confirmarBtn.onclick = () => {
+    guardarLock(diaSel.value, juradoSel.value);
+    renderLockBadge();
+    iniciarBusqueda();
+  };
+}
+
+/* ===================== Buscar obra ===================== */
+async function iniciarBusqueda(){
+  el('mainArea').innerHTML = `<div class="empty">Cargando las obras de ${lock.dia}…</div>`;
+  try{
+    const params = new URLSearchParams({accion:'obrasJurado', dia: lock.dia, jurado: lock.jurado});
+    const res = await fetch(SCRIPT_URL + '?' + params.toString());
+    const json = await res.json();
+    obrasDelBloque = json.obras || [];
+    renderBusqueda(json.error || '');
+  }catch(err){
+    el('mainArea').innerHTML = `<div class="status-banner err">No pude cargar las obras de ${lock.dia}. Revisá tu conexión y volvé a abrir la página.</div>`;
+  }
+}
+
+function renderBusqueda(errorServidor){
+  el('footerActions').style.display = 'none';
+  el('mainArea').innerHTML = `
+    <div class="lookup">
+      <input id="nroInput" type="tel" inputmode="numeric" placeholder="N° de obra" maxlength="4">
+      <button id="buscarBtn">Buscar</button>
+    </div>
+    ${errorServidor ? `<div class="status-banner err">${errorServidor}</div>` : ''}
+    <div class="hint">${obrasDelBloque.length} obra(s) para vos en ${lock.dia}. Escribí el número de orden de la obra que vas a calificar.</div>
+    <div id="content"><div class="empty">Escribí un número de obra para empezar</div></div>
+  `;
+  el('buscarBtn').onclick = buscarObra;
+  el('nroInput').addEventListener('keypress', e => { if(e.key === 'Enter') buscarObra(); });
+  el('nroInput').focus();
+}
+
+async function buscarObra(){
+  const nro = parseInt(el('nroInput').value, 10);
+  if(!nro){ return; }
+  const obra = obrasDelBloque.find(o => Number(o.orden) === nro);
+  if(!obra){
+    el('content').innerHTML = `<div class="status-banner err">No encontré la obra N° ${nro} entre las tuyas en ${lock.dia}.</div>`;
+    el('footerActions').style.display = 'none';
+    return;
+  }
+  currentObra = obra;
+  currentScore = null;
+  currentScoreCoreo = null;
+  currentNominaciones = [];
+  currentMencion = '';
+  yaEnviado = false;
+
+  render();
+  el('content').insertAdjacentHTML('beforeend', '<div class="status-banner warn" id="cargandoBanner">Buscando si ya calificaste esta obra antes…</div>');
+
+  try{
+    const params = new URLSearchParams({accion:'cargarCalificacionJurado', dia: lock.dia, idInscripcion: obra.idInscripcion, jurado: lock.jurado});
+    const res = await fetch(SCRIPT_URL + '?' + params.toString());
+    const json = await res.json();
+    const banner = el('cargandoBanner');
+    if(banner) banner.remove();
+    if(json.encontrado){
+      currentScore = json.puntaje != null && json.puntaje !== '' ? Number(json.puntaje) : null;
+      currentScoreCoreo = json.puntajeCoreo ? Number(json.puntajeCoreo) : null;
+      currentNominaciones = (json.nominaciones || '').split(',').map(s => s.trim()).filter(Boolean);
+      currentMencion = json.mencionEspecial || '';
+      yaEnviado = true;
+      render();
+    }
+  }catch(err){
+    const banner = el('cargandoBanner');
+    if(banner) banner.remove();
+  }
+}
+
+window.irSiguienteObra = function(){
+  currentObra = null;
+  yaEnviado = false;
+  renderBusqueda();
+};
+
+/* ===================== Render principal de la obra ===================== */
+function render(){
+  const d = currentObra;
+  const esOro = currentScore != null && currentScore >= 9.5;
+  el('content').innerHTML = `
+    <div class="card">
+      <div class="obra-title">N° ${d.orden} — ${d.obra}</div>
+      <div class="obra-academia">${d.academia || '—'}</div>
+      <div class="meta-grid">
+        <div><div class="k">Modalidad</div><div class="v">${d.modalidad || '—'}</div></div>
+        <div><div class="k">Categoría</div><div class="v">${d.categoria || '—'}</div></div>
+        <div><div class="k">Tipo</div><div class="v">${d.tipoParticipacion || '—'}</div></div>
+        <div><div class="k">Duración</div><div class="v">${d.duracion || '—'}</div></div>
+        <div><div class="k">Coreógrafo/a</div><div class="v">${d.coreografo || '—'}</div></div>
+        <div><div class="k">Preparador/a</div><div class="v">${d.preparador || '—'}</div></div>
+      </div>
+      <div class="participantes">
+        <div class="k">Participantes</div>
+        ${(d.participantes||[]).join(', ') || '—'}
+      </div>
+    </div>
+
+    <div class="section-label">Puntaje</div>
+    <div class="score-box">
+      <div class="score-value" id="scoreValue">${currentScore != null ? currentScore.toFixed(1) : '—'}</div>
+      <select class="score-select" id="scoreSelect">
+        <option value="">Elegí un puntaje…</option>
+        ${opcionesPuntaje().map(v => `<option value="${v}" ${currentScore != null && Number(v)===currentScore ? 'selected':''}>${v}</option>`).join('')}
+      </select>
+      <div id="puestoBadgeWrap">${renderPuestoBadge(currentScore) || '<div class="score-hint">Elegí un puntaje para ver el puesto</div>'}</div>
+      ${escalaPanelHTML()}
+    </div>
+
+    ${d.competeCoreografia === 'Sí' ? `
+    <div class="section-label">Puntaje por Coreografía</div>
+    <div class="score-box">
+      <div class="coreo-flag">🏆 Esta obra compite por coreografía</div>
+      <div class="score-value" id="scoreCoreoValue">${currentScoreCoreo != null ? currentScoreCoreo.toFixed(1) : '—'}</div>
+      <select class="score-select" id="scoreCoreoSelect">
+        <option value="">Elegí un puntaje…</option>
+        ${opcionesPuntaje().map(v => `<option value="${v}" ${currentScoreCoreo != null && Number(v)===currentScoreCoreo ? 'selected':''}>${v}</option>`).join('')}
+      </select>
+      <div id="puestoBadgeCoreoWrap">${renderPuestoBadge(currentScoreCoreo) || '<div class="score-hint">Elegí un puntaje para ver el puesto</div>'}</div>
+      ${escalaPanelHTML()}
+    </div>` : ''}
+
+    <div class="section-label">Nominaciones y menciones especiales</div>
+    <div id="premioArea">${premioAreaHTML(esOro)}</div>
+
+    <div id="bannerArea"></div>
+  `;
+
+  el('scoreSelect').onchange = () => {
+    currentScore = el('scoreSelect').value !== '' ? Number(el('scoreSelect').value) : null;
+    el('scoreValue').textContent = currentScore != null ? currentScore.toFixed(1) : '—';
+    el('puestoBadgeWrap').innerHTML = renderPuestoBadge(currentScore) || '<div class="score-hint">Elegí un puntaje para ver el puesto</div>';
+    const oroAhora = currentScore != null && currentScore >= 9.5;
+    if(!oroAhora){ currentNominaciones = []; currentMencion = ''; }
+    el('premioArea').innerHTML = premioAreaHTML(oroAhora);
+    bindPremioInputs();
+    renderFooter();
+  };
+
+  if(el('scoreCoreoSelect')){
+    el('scoreCoreoSelect').onchange = () => {
+      currentScoreCoreo = el('scoreCoreoSelect').value !== '' ? Number(el('scoreCoreoSelect').value) : null;
+      el('scoreCoreoValue').textContent = currentScoreCoreo != null ? currentScoreCoreo.toFixed(1) : '—';
+      el('puestoBadgeCoreoWrap').innerHTML = renderPuestoBadge(currentScoreCoreo) || '<div class="score-hint">Elegí un puntaje para ver el puesto</div>';
+    };
+  }
+
+  bindPremioInputs();
+  renderFooter();
+}
+
+function premioAreaHTML(mostrar){
+  if(!mostrar){
+    return `<div class="premio-locked">🔒 Las nominaciones y menciones especiales solo se habilitan si el puntaje está en el rango de <strong>Oro (9.5 a 10)</strong>.</div>`;
+  }
+  return `
+    <div class="nom-box">
+      ${NOMINACIONES_FIJAS.map(n => `
+        <label class="nom-check">
+          <input type="checkbox" class="nomCheck" value="${n}" ${currentNominaciones.includes(n) ? 'checked' : ''}>
+          ${n}
+        </label>`).join('')}
+      <div class="mencion-field">
+        <label>Mención especial (opcional, texto libre)</label>
+        <input type="text" id="mencionInput" placeholder="Escribí una mención especial si corresponde…" value="${(currentMencion||'').replace(/"/g,'&quot;')}">
+      </div>
+    </div>`;
+}
+function bindPremioInputs(){
+  document.querySelectorAll('.nomCheck').forEach(chk => {
+    chk.onchange = () => {
+      currentNominaciones = Array.from(document.querySelectorAll('.nomCheck:checked')).map(c => c.value);
+    };
+  });
+  const mencionInput = el('mencionInput');
+  if(mencionInput){
+    mencionInput.oninput = () => { currentMencion = mencionInput.value; };
+  }
+}
+
+/* ===================== Footer / Enviar ===================== */
+function renderFooter(){
+  const footer = el('footerActions');
+  const btn = el('sendBtn');
+  const note = el('modifyNote');
+  footer.style.display = 'block';
+  btn.disabled = currentScore == null;
+  btn.textContent = yaEnviado ? 'Actualizar calificación' : 'Enviar calificación';
+  note.textContent = yaEnviado ? 'Ya calificaste esta obra — enviar de nuevo reemplaza tu calificación anterior.' : '';
+  btn.onclick = enviarCalificacion;
+}
+
+async function enviarCalificacion(){
+  if(currentScore == null){
+    el('bannerArea').innerHTML = `<div class="status-banner err">Elegí un puntaje antes de enviar.</div>`;
+    return;
+  }
+  if(currentObra.competeCoreografia === 'Sí' && currentScoreCoreo == null){
+    el('bannerArea').innerHTML = `<div class="status-banner err">Esta obra compite por coreografía — elegí también el puntaje por coreografía antes de enviar.</div>`;
+    return;
+  }
+  const btn = el('sendBtn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+  el('bannerArea').innerHTML = '';
+  try{
+    const fd = new FormData();
+    fd.append('accion', 'guardarCalificacionJurado');
+    fd.append('dia', lock.dia);
+    fd.append('bloqueReal', currentObra.bloqueReal || '');
+    fd.append('jurado', lock.jurado);
+    fd.append('idInscripcion', currentObra.idInscripcion);
+    fd.append('ordenNro', currentObra.orden);
+    fd.append('nombreObra', currentObra.obra);
+    fd.append('academia', currentObra.academia || '');
+    fd.append('modalidad', currentObra.modalidad || '');
+    fd.append('categoria', currentObra.categoria || '');
+    fd.append('puntaje', currentScore);
+    if(currentObra.competeCoreografia === 'Sí' && currentScoreCoreo != null){
+      fd.append('puntajeCoreo', currentScoreCoreo);
+    }
+    fd.append('nominaciones', currentNominaciones.join(', '));
+    fd.append('mencionEspecial', currentMencion || '');
+
+    const r = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+    const data = await r.json();
+    if(!data.ok) throw new Error(data.error || 'Error al guardar');
+
+    yaEnviado = true;
+    el('bannerArea').innerHTML = `<div class="status-banner ok">✓ Calificación guardada correctamente.</div>
+      <button class="siguiente-link" id="siguienteBtn">Calificar la siguiente obra →</button>`;
+    el('siguienteBtn').onclick = () => irSiguienteObra();
+    renderFooter();
+  }catch(err){
+    el('bannerArea').innerHTML = `<div class="status-banner err">No se pudo guardar: ${err.message}. Volvé a intentar.</div>`;
+    btn.disabled = false;
+  }
+}
+
+/* ===================== Arranque ===================== */
+function iniciarApp(){
+  lock = cargarLockGuardado();
+  if(lock){
+    renderLockBadge();
+    iniciarBusqueda();
+  } else {
+    renderSetup();
+  }
+}
+iniciarApp();
+</script>
+</body>
+</html>

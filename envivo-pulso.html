@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!--
+  PULSO 2026 — Orden en Vivo (público)
+  ----------------------------------------------------------------------
+  Pantalla pública de solo lectura: muestra nada más que 3 obras por vez
+  (la que ya bailó antes, la que está en escenario ahora, y la próxima),
+  leyendo del mismo backend que el Panel de la Locutora (Codigo.gs
+  principal — acción "ordenEnVivo"). No tiene botones ni login: se
+  actualiza sola cada pocos segundos.
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Orden en Vivo — PULSO 2026</title>
+<meta name="theme-color" content="#3B0764">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--p:#6B21A8;--pd:#3B0764;--a:#EAB308;--txt:#2B2432;--txt-suave:#6E6079;--borde:#E4DAF0;--marfil:#FBF8FF;
+  --bailo:#1E8A5F;--bailo-bg:#DFF5EA}
+body{background:var(--marfil);font-family:'Segoe UI',system-ui,Arial,sans-serif;color:var(--txt);min-height:100vh;font-size:14px}
+a{color:inherit}
+
+.topbar{background:linear-gradient(90deg,var(--pd),var(--p));padding:.9rem 1.2rem;position:sticky;top:0;z-index:50;box-shadow:0 4px 14px rgba(53,19,79,.25)}
+.topbar-fila{display:flex;align-items:center;justify-content:space-between;gap:10px;max-width:760px;margin:0 auto}
+.topbar h1{color:#fff;font-size:.95rem;font-weight:800}
+.topbar .sub{color:var(--a);font-size:.72rem;font-weight:600;margin-top:1px}
+.btn-volver{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:.35rem .8rem;border-radius:99px;font-size:.75rem;text-decoration:none;white-space:nowrap}
+
+.content{max-width:760px;margin:0 auto;padding:1.2rem 1rem 3rem}
+
+.dias-tabs{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+.btn-dia{flex:1;min-width:70px;padding:.6rem;border:1.5px solid var(--p);border-radius:10px;background:#fff;color:var(--p);font-weight:700;font-size:.84rem;cursor:pointer}
+.btn-dia.active{background:var(--p);color:#fff}
+
+.estado-box{background:#fff;border-radius:12px;padding:1.6rem 1.2rem;text-align:center;color:var(--txt-suave);font-size:.88rem;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.estado-box.error{color:#991B1B;background:#FEF2F2}
+
+.bloque-etiqueta{font-size:.68rem;text-transform:uppercase;letter-spacing:.8px;font-weight:800;margin:1.1rem 0 .4rem;color:var(--txt-suave);display:flex;align-items:center;gap:8px}
+.bloque-etiqueta:first-child{margin-top:0}
+.bloque-etiqueta::after{content:'';flex:1;height:1px;background:var(--borde)}
+
+.card{border-radius:16px;padding:1rem 1.1rem;margin-bottom:.7rem}
+.card-nro{font-size:1.5rem;font-weight:800;min-width:40px}
+.card-fila{display:flex;align-items:flex-start;gap:12px}
+.card-info{flex:1;min-width:0}
+.card-titulo{font-weight:700;font-size:1rem}
+.card-academia{font-size:.82rem;margin-top:1px;opacity:.85}
+.card-meta{font-size:.74rem;margin-top:5px;line-height:1.5;opacity:.8}
+
+.card-anterior{background:#fff;border:1px solid var(--borde);opacity:.75}
+.card-anterior .card-nro{color:var(--bailo)}
+.card-anterior .tag{display:inline-block;background:var(--bailo-bg);color:var(--bailo);font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:.15rem .55rem;border-radius:99px;margin-bottom:.35rem}
+
+.card-actual{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;box-shadow:0 8px 28px rgba(107,33,168,.35);transform:scale(1.02)}
+.card-actual .card-nro{color:#fff;font-size:2rem}
+.card-actual .card-titulo{font-size:1.2rem}
+.card-actual .tag{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:.2rem .65rem;border-radius:99px;margin-bottom:.4rem;animation:pulso 1.6s infinite}
+@keyframes pulso{0%,100%{opacity:1}50%{opacity:.55}}
+
+.card-proximo{background:#fff;border:1.5px dashed var(--p)}
+.card-proximo .card-nro{color:var(--p)}
+.card-proximo .tag{display:inline-block;background:#EDE3F9;color:var(--pd);font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:.15rem .55rem;border-radius:99px;margin-bottom:.35rem}
+
+.vacio-mini{font-size:.8rem;color:var(--txt-suave);text-align:center;padding:.9rem;background:#fff;border:1px dashed var(--borde);border-radius:12px;margin-bottom:.7rem}
+
+.actualizado{font-size:.72rem;color:var(--txt-suave);text-align:center;margin-top:1rem}
+
+.spinner{width:16px;height:16px;border:2.5px solid rgba(107,33,168,.25);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:-3px;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-fila">
+    <div>
+      <h1>🎬 Orden en Vivo</h1>
+      <div class="sub">PULSO 2026</div>
+    </div>
+    <a class="btn-volver" href="orden-participacion.html">Orden completo →</a>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="dias-tabs">
+    <button class="btn-dia active" id="tab-jue" onclick="cambiarDia('Jueves')">Jueves</button>
+    <button class="btn-dia" id="tab-vie" onclick="cambiarDia('Viernes')">Viernes</button>
+    <button class="btn-dia" id="tab-sab" onclick="cambiarDia('Sábado')">Sábado</button>
+    <button class="btn-dia" id="tab-dom" onclick="cambiarDia('Domingo')">Domingo</button>
+  </div>
+
+  <div id="contenido">
+    <div class="estado-box"><span class="spinner"></span> Cargando...</div>
+  </div>
+
+  <div class="actualizado" id="actualizado"></div>
+
+</div>
+
+<script>
+window.addEventListener('error', (ev) => {
+  console.error('Error en la página:', ev.error || ev.message);
+});
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiBaoLqFqCVAm44URLDZFKXMYPaL0UlUjStOso_vyeC8UdDqVuw3T_SyjzHLbRqxjDRQ/exec";
+const AUTO_REFRESH_MS = 6000; // pantalla pública — se actualiza más seguido que el panel interno
+
+const DIAS_KEYS = { 'Jueves':'tab-jue', 'Viernes':'tab-vie', 'Sábado':'tab-sab', 'Domingo':'tab-dom' };
+let DIAS_DATA = { 'Jueves': [], 'Viernes': [], 'Sábado': [], 'Domingo': [] };
+let DIA_ACTUAL = 'Jueves';
+let CARGANDO = false;
+
+function escHtml(s){
+  return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function cargarTodo(silencioso){
+  if(CARGANDO) return;
+  CARGANDO = true;
+  if(!silencioso){
+    document.getElementById('contenido').innerHTML = '<div class="estado-box"><span class="spinner"></span> Cargando...</div>';
+  }
+  try{
+    const res = await fetch(SCRIPT_URL + '?accion=ordenEnVivo&_ts=' + Date.now(), {cache:'no-store'});
+    const json = await res.json();
+    if(json.ok){
+      DIAS_DATA = json.dias || DIAS_DATA;
+      document.getElementById('actualizado').textContent =
+        'Actualizado ' + new Date().toLocaleTimeString('es-PY', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      renderTodo();
+    } else if(!silencioso){
+      document.getElementById('contenido').innerHTML = '<div class="estado-box error">❌ No se pudo cargar el orden en vivo. Probá de nuevo en unos segundos.</div>';
+    }
+  }catch(err){
+    console.error(err);
+    if(!silencioso){
+      document.getElementById('contenido').innerHTML = '<div class="estado-box error">❌ No se pudo conectar con el servidor.</div>';
+    }
+  }finally{
+    CARGANDO = false;
+  }
+}
+
+function cambiarDia(dia){
+  DIA_ACTUAL = dia;
+  Object.keys(DIAS_KEYS).forEach(d => document.getElementById(DIAS_KEYS[d]).classList.toggle('active', d === dia));
+  renderTodo();
+}
+
+function metaLinea(o){
+  const partes = [];
+  if(o.categoria) partes.push(escHtml(o.categoria));
+  if(o.modalidad) partes.push(escHtml(o.modalidad));
+  if(o.tipoParticipacion) partes.push(escHtml(o.tipoParticipacion));
+  return partes.join(' · ');
+}
+
+function tarjeta(o, tipo){
+  if(tipo === 'anterior'){
+    return `
+      <div class="card card-anterior">
+        <div class="card-fila">
+          <div class="card-nro">${o.posicion}</div>
+          <div class="card-info">
+            <div class="tag">✅ Ya bailó</div>
+            <div class="card-titulo">${escHtml(o.obra || '(sin nombre)')}</div>
+            <div class="card-academia">${escHtml(o.academia || '')}</div>
+            <div class="card-meta">${metaLinea(o)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+  if(tipo === 'actual'){
+    return `
+      <div class="card card-actual">
+        <div class="card-fila">
+          <div class="card-nro">${o.posicion}</div>
+          <div class="card-info">
+            <div class="tag">🎭 En escenario ahora</div>
+            <div class="card-titulo">${escHtml(o.obra || '(sin nombre)')}</div>
+            <div class="card-academia">${escHtml(o.academia || '')}</div>
+            <div class="card-meta">${metaLinea(o)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="card card-proximo">
+      <div class="card-fila">
+        <div class="card-nro">${o.posicion}</div>
+        <div class="card-info">
+          <div class="tag">⏭️ Próximo</div>
+          <div class="card-titulo">${escHtml(o.obra || '(sin nombre)')}</div>
+          <div class="card-academia">${escHtml(o.academia || '')}</div>
+          <div class="card-meta">${metaLinea(o)}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/**
+ * Arma solo 3 tarjetas (a pedido explícito, en vez de las listas completas
+ * de "ya se presentaron" / "siguen en el orden" de la versión original):
+ *   - anterior: la última obra marcada "Ya bailó" o "No se presenta"
+ *     (la de mayor N° entre las que ya pasaron).
+ *   - actual: la obra marcada "En escenario" (a lo sumo una).
+ *   - proximo: la próxima obra "En espera" (la de menor N° entre las que
+ *     todavía no bailaron).
+ */
+function renderTodo(){
+  const cont = document.getElementById('contenido');
+  const todasDelDia = (DIAS_DATA[DIA_ACTUAL] || []).slice().sort((a,b) => Number(a.posicion) - Number(b.posicion));
+
+  if(!todasDelDia.length){
+    cont.innerHTML = `<div class="estado-box">Todavía no hay un orden guardado para ${DIA_ACTUAL}.</div>`;
+    return;
+  }
+
+  const pasaron = todasDelDia.filter(o => o.estado === 'Ya bailó' || o.estado === 'No se presenta');
+  const anterior = pasaron.length ? pasaron[pasaron.length - 1] : null;
+
+  const actual = todasDelDia.find(o => o.estado === 'En escenario') || null;
+
+  const proximas = todasDelDia.filter(o => !o.estado || o.estado === 'En espera');
+  const proximo = proximas.length ? proximas[0] : null;
+
+  let html = '';
+  html += `<div class="bloque-etiqueta">Ya bailó</div>`;
+  html += anterior ? tarjeta(anterior, 'anterior') : `<div class="vacio-mini">Todavía no bailó nadie hoy.</div>`;
+
+  html += `<div class="bloque-etiqueta">En escenario ahora</div>`;
+  html += actual ? tarjeta(actual, 'actual') : `<div class="vacio-mini">Ninguna obra en escenario en este momento.</div>`;
+
+  html += `<div class="bloque-etiqueta">Próximo</div>`;
+  html += proximo ? tarjeta(proximo, 'proximo') : `<div class="vacio-mini">Ya bailaron todas las obras de ${DIA_ACTUAL}.</div>`;
+
+  cont.innerHTML = html;
+}
+
+// El día del evento (10 al 13 de septiembre de 2026), esta pantalla se abre
+// directo en el día que corresponde y esconde las pestañas de los otros
+// días. Fuera de esas fechas se ven las cuatro pestañas normal.
+const FECHAS_EVENTO = {
+  '2026-09-10': 'Jueves',
+  '2026-09-11': 'Viernes',
+  '2026-09-12': 'Sábado',
+  '2026-09-13': 'Domingo'
+};
+
+function fechaLocalHoy(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function aplicarDiaFijoDelEvento(){
+  const diaFijo = FECHAS_EVENTO[fechaLocalHoy()];
+  if(!diaFijo) return;
+
+  DIA_ACTUAL = diaFijo;
+  Object.keys(DIAS_KEYS).forEach(d => {
+    document.getElementById(DIAS_KEYS[d]).style.display = d === diaFijo ? '' : 'none';
+    document.getElementById(DIAS_KEYS[d]).classList.toggle('active', d === diaFijo);
+  });
+}
+
+aplicarDiaFijoDelEvento();
+cargarTodo();
+setInterval(() => cargarTodo(true), AUTO_REFRESH_MS);
+</script>
+</body>
+</html>

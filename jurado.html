@@ -615,6 +615,7 @@ async function enviarCalificacion(){
     fd.append('modalidad', currentObra.modalidad || '');
     fd.append('categoria', currentObra.categoria || '');
     fd.append('tipoParticipacion', currentObra.tipoParticipacion || '');
+    fd.append('participantes', (currentObra.participantes || []).join(', '));
     fd.append('puntaje', currentScore);
     if(currentObra.competeCoreografia === 'Sí' && currentScoreCoreo != null){
       fd.append('puntajeCoreo', currentScoreCoreo);

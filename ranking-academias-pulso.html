@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking de Academias — PULSO 2026</title>
+<style>
+  :root{
+    --p:#6B21A8; --pd:#3B0764; --a:#EAB308; --a2:#A855F7;
+    --bg:#F4F1F8; --bg-elev:#FFFBFE; --txt:#1C1033; --muted:#7a5f74;
+    --line:#E4DAF0; --ok:#16A34A; --oro:#c9a227; --plata:#9a9a9a; --bronce:#b0702f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
+    font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;}
+  .app{max-width:980px;margin:0 auto;padding:24px 18px 60px;}
+
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    padding-bottom:18px;border-bottom:2px solid var(--p);margin-bottom:22px;}
+  header .marca{display:flex;align-items:center;gap:12px;}
+  header img{height:44px;object-fit:contain;}
+  header .titulo{font-size:20px;font-weight:800;color:var(--pd);}
+  header .sub{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;}
+  .estado{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);}
+
+  .nota{font-size:12px;color:var(--muted);background:var(--bg-elev);border:1px solid var(--line);
+    border-radius:12px;padding:12px 16px;margin-bottom:20px;line-height:1.5;}
+
+  .tabla-wrap{background:var(--bg-elev);border:1px solid var(--line);border-radius:16px;
+    padding:8px 0;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px;}
+  th{text-align:left;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;
+    padding:10px 10px;border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--bg-elev);}
+  td{padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .centro{text-align:center;}
+  .rank-num{font-weight:800;color:var(--muted);}
+  tr.top1 .rank-num, tr.top1 .nombre{color:var(--oro);}
+  tr.top2 .rank-num, tr.top2 .nombre{color:var(--plata);}
+  tr.top3 .rank-num, tr.top3 .nombre{color:var(--bronce);}
+  tr.top1{background:linear-gradient(90deg,rgba(234,179,8,.12),transparent);}
+  .nombre{font-weight:700;color:var(--pd);}
+  tr.sin-medallas .nombre{color:var(--muted);font-weight:600;}
+  tr.sin-medallas td{color:var(--muted);}
+  .med{font-weight:800;}
+  .med.oro-c{color:var(--oro);}
+  .med.plata-c{color:var(--plata);}
+  .med.bronce-c{color:var(--bronce);}
+  .med.cero{color:#c9c2d6;font-weight:400;}
+  .badge-sin{font-size:10px;font-weight:700;background:#F1F1F1;color:#888;padding:2px 8px;border-radius:99px;}
+
+  .empty-msg{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px;}
+  .loading{text-align:center;padding:60px 20px;color:var(--p);font-size:14px;}
+  .spinner{width:16px;height:16px;border:2.5px solid rgba(107,33,168,.25);border-top-color:var(--p);
+    border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:-3px;margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="marca">
+      <img src="logo.png" alt="PULSO 2026" onerror="this.style.display='none'">
+      <div>
+        <div class="titulo">🏫 Ranking de Academias</div>
+        <div class="sub">PULSO 2026 — Festival completo</div>
+      </div>
+    </div>
+    <div class="estado"><span class="dot" id="dot-estado"></span> <span id="txt-estado">Actualizado ahora</span></div>
+  </header>
+
+  <div class="nota">
+    Todas las academias e independientes registrados en el festival, con sus 4 días sumados. Ordenadas primero por
+    más 1er puesto (🥇), después más 2do (🥈), después más 3er puesto (🥉), y a igualdad de medallas, por más obras
+    presentadas. Las que todavía no ganaron ninguna medalla también aparecen, al final.
+  </div>
+
+  <div id="contenido">
+    <div class="loading"><span class="spinner"></span> Cargando...</div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRxhbJPeaPrF1H41ZHOeyjM4Ex7uZHtbyHHaqaylEqvBmqBnTnm6yvBeY3S2jBmF1W/exec';
+const REFRESCO_MS = 20000;
+
+function escHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;',
+  }[ch]));
+}
+
+async function cargarRanking(){
+  try{
+    const r = await fetch(SCRIPT_URL + '?accion=rankingAcademiasPublico&_ts=' + Date.now(), { cache: 'no-store' });
+    const json = await r.json();
+    if(!json.ok){
+      document.getElementById('contenido').innerHTML = `<div class="empty-msg">❌ ${escHtml(json.error || 'No se pudo cargar.')}</div>`;
+      marcarEstado(false);
+      return;
+    }
+    renderRanking(json.academias || []);
+    marcarEstado(true);
+  }catch(e){
+    marcarEstado(false);
+  }
+}
+
+function marcarEstado(ok){
+  document.getElementById('dot-estado').style.background = ok ? '#16A34A' : '#C53030';
+  document.getElementById('txt-estado').textContent = ok
+    ? 'Actualizado ' + new Date().toLocaleTimeString('es-PY', {hour:'2-digit', minute:'2-digit'})
+    : 'Sin conexión — reintentando...';
+}
+
+function medCell(n, claseColor){
+  return n > 0 ? `<span class="med ${claseColor}">${n}</span>` : '<span class="med cero">0</span>';
+}
+
+function renderRanking(academias){
+  const cont = document.getElementById('contenido');
+  if(!academias.length){
+    cont.innerHTML = '<div class="empty-msg">Todavía no hay academias registradas.</div>';
+    return;
+  }
+
+  const filas = academias.map((a, idx) => {
+    const sinMedallas = a.oro === 0 && a.plata === 0 && a.bronce === 0;
+    const claseTop = idx === 0 ? 'top1' : idx === 1 ? 'top2' : idx === 2 ? 'top3' : '';
+    const claseFila = [claseTop, sinMedallas ? 'sin-medallas' : ''].filter(Boolean).join(' ');
+    return `
+      <tr class="${claseFila}">
+        <td class="rank-num centro">${idx + 1}</td>
+        <td class="nombre">${escHtml(a.nombre)}${a.obras === 0 ? ' <span class="badge-sin">sin obras evaluadas</span>' : ''}</td>
+        <td class="centro">${medCell(a.oro, 'oro-c')}</td>
+        <td class="centro">${medCell(a.plata, 'plata-c')}</td>
+        <td class="centro">${medCell(a.bronce, 'bronce-c')}</td>
+        <td class="centro">${a.sinpremio}</td>
+        <td class="centro">${a.obras}</td>
+        <td class="centro">${a.participantes}</td>
+      </tr>
+    `;
+  }).join('');
+
+  cont.innerHTML = `
+    <div class="tabla-wrap">
+      <table>
+        <tr>
+          <th class="centro">#</th><th>Academia</th>
+          <th class="centro">🥇</th><th class="centro">🥈</th><th class="centro">🥉</th>
+          <th class="centro">Sin premio</th><th class="centro">Obras</th><th class="centro">Participantes</th>
+        </tr>
+        ${filas}
+      </table>
+    </div>
+  `;
+}
+
+cargarRanking();
+setInterval(cargarRanking, REFRESCO_MS);
+</script>
+</body>
+</html>

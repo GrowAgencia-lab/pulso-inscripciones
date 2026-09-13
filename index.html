@@ -2033,6 +2033,11 @@ async function eliminarInscripcionAdmin(id, etiqueta, academia, hoja) {
       if (acMC && acMC.inscripciones.length) verDetalleAcademiaMC(academia);
       else document.getElementById('mc-detalle-card').style.display = 'none';
     } else {
+      // AUDITORÍA 13/09: además de sacarla al toque de la vista local (para
+      // que no haya demora visual), se vuelve a pedir Finanzas ENTERA al
+      // servidor (que ya no usa caché para esto — ver Codigo.gs) para que la
+      // pantalla quede 100% alineada con la hoja real, no con lo que el
+      // navegador tenía cargado antes de borrar.
       finData.forEach(ac => { ac.obras = ac.obras.filter(o => o.id !== id); });
       finDataFiltrada.forEach(ac => { ac.obras = ac.obras.filter(o => o.id !== id); });
       delete AJUSTES_BECA[id];
@@ -2042,6 +2047,10 @@ async function eliminarInscripcionAdmin(id, etiqueta, academia, hoja) {
       const acFin = finData.find(a => a.nombre === academia);
       if (acFin && acFin.obras.length) verDetalleAcademia(academia);
       else document.getElementById('fin-detalle-card').style.display = 'none';
+
+      await cargarFinanzas();
+      const acFinFresca = finData.find(a => a.nombre === academia);
+      if (acFinFresca && acFinFresca.obras.length) verDetalleAcademia(academia);
     }
 
     log('Inscripción eliminada desde el panel admin: ' + id + (etiqueta ? ' — ' + etiqueta : ''));
